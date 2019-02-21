@@ -33,6 +33,12 @@ package com.cloudkitchens/*
 import com.cloudkitchens.Temperature.COLD
 import com.cloudkitchens.Temperature.FROZEN
 import com.cloudkitchens.Temperature.HOT
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.FACTORY_METHOD
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.PRODUCT
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
 import java.util.concurrent.LinkedBlockingDeque
 
 /*
@@ -59,6 +65,7 @@ import java.util.concurrent.LinkedBlockingDeque
 //===========================================
 // SHELVES
 //===========================================
+@StrategyPattern(role = INTERFACE)
 interface Shelf
 {
     val size: Int
@@ -70,10 +77,19 @@ interface Shelf
     fun pickupOrder(): Order?
     fun display(): List<OrderDetail>
     fun removeWasteItems()
+}
+
+@FactoryMethodPattern(role = PRODUCT)
+interface ShelfSet
+{
+    val hot: Shelf
+    val cold: Shelf
+    val frozen: Shelf
+    val overflow: Shelf
 
     companion object
     {
-
+        @FactoryMethodPattern(role = FACTORY_METHOD)
         @JvmStatic
         fun createDefaultShelfSet(): ShelfSet
         {
@@ -84,22 +100,13 @@ interface Shelf
 
             return object: ShelfSet
             {
-                override val hotShelf: Shelf = hotShelf
-                override val coldShelf: Shelf = coldShelf
-                override val frozenShelf: Shelf = frozenShelf
-                override val overflowShelf: Shelf = overflowShelf
+                override val hot: Shelf = hotShelf
+                override val cold: Shelf = coldShelf
+                override val frozen: Shelf = frozenShelf
+                override val overflow: Shelf = overflowShelf
             }
         }
     }
-
-}
-
-interface ShelfSet
-{
-    val hotShelf: Shelf
-    val coldShelf: Shelf
-    val frozenShelf: Shelf
-    val overflowShelf: Shelf
 }
 
 data class OrderDetail(val order: Order,
@@ -108,6 +115,7 @@ data class OrderDetail(val order: Order,
 //===========================================
 // IMPLEMENTATION
 //===========================================
+@StrategyPattern(role = CONCRETE_BEHAVIOR)
 internal class ShelfImpl(private val optimalTemperature: Temperature?,
                          override val capacity: Int = 15): Shelf
 {

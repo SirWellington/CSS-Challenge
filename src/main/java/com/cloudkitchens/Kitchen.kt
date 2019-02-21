@@ -19,6 +19,12 @@ package com.cloudkitchens
 import com.cloudkitchens.Temperature.COLD
 import com.cloudkitchens.Temperature.FROZEN
 import com.cloudkitchens.Temperature.HOT
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.FACTORY_METHOD
+import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.PRODUCT
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
 
 /*
  * Copyright 2019 SirWellington
@@ -42,6 +48,8 @@ import com.cloudkitchens.Temperature.HOT
  *
  * @author SirWellington
  */
+@FactoryMethodPattern(role = PRODUCT)
+@StrategyPattern(role = INTERFACE)
 interface Kitchen
 {
 
@@ -51,15 +59,23 @@ interface Kitchen
      */
     fun receiveOrder(request: OrderRequest): Order
 
+    companion object Factory
+    {
+
+        @FactoryMethodPattern(role = FACTORY_METHOD)
+        fun newCaliforniaKitchen(shelfSet: ShelfSet = ShelfSet.createDefaultShelfSet()): Kitchen
+        {
+            return CaliforniaKitchen(shelfSet)
+        }
+    }
+
 }
 
 //===========================================
 // IMPLEMENTATION
 //===========================================
-internal class CaliforniaKitchen(private val hotShelf: Shelf,
-                                 private val coldShelf: Shelf,
-                                 private val frozenShelf: Shelf,
-                                 private val overflowShelf: Shelf): Kitchen
+@StrategyPattern(role = CONCRETE_BEHAVIOR)
+internal class CaliforniaKitchen(private val shelves: ShelfSet): Kitchen
 {
     private val LOG = getLogger()
 
@@ -69,14 +85,13 @@ internal class CaliforniaKitchen(private val hotShelf: Shelf,
 
         val shelf = when (request.temp)
         {
-            COLD   -> coldShelf
-            HOT    -> hotShelf
-            FROZEN -> frozenShelf
+            COLD   -> shelves.cold
+            HOT    -> shelves.hot
+            FROZEN -> shelves.frozen
         }
-
         if (shelf.isAtCapacity)
         {
-            overflowShelf.addOrder(order)
+            shelves.overflow.addOrder(order)
         }
         else
         {
