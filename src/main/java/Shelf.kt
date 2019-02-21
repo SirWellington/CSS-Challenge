@@ -44,13 +44,31 @@ interface Shelf
 {
     val size: Int
     val capacity: Int
-    val temparature: Temperature?
+    val temperature: Temperature?
+    val isAtCapacity: Boolean get() = size >= capacity
 
     fun addOrder(order: Order)
     fun pickupOrder(): Order?
     fun display(): List<OrderDetail>
     fun removeWasteItems()
 
+    companion object
+    {
+
+        @JvmStatic
+        fun createDefaultShelves(): List<Shelf>
+        {
+            val normalShelves = Temperature.all.map()
+            {
+                ShelfImpl(optimalTemperature = it, capacity = 15)
+            }
+
+            val overflowShelf = ShelfImpl(optimalTemperature = null,
+                                          capacity = 20)
+
+            return normalShelves + overflowShelf
+        }
+    }
 }
 
 data class OrderDetail(val order: Order,
@@ -68,7 +86,7 @@ internal class ShelfImpl(private val optimalTemperature: Temperature?,
     override val size: Int
         get() = orders.size
 
-    override val temparature: Temperature?
+    override val temperature: Temperature?
         get() = optimalTemperature
 
     override fun addOrder(order: Order)
