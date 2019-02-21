@@ -22,6 +22,7 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPatt
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
+import tech.sirwellington.alchemy.generator.StringGenerators
 import java.time.ZonedDateTime
 
 /**
@@ -45,9 +46,10 @@ interface Kitchen
     {
 
         @FactoryMethodPattern(role = FACTORY_METHOD)
-        fun newCaliforniaKitchen(shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet()): Kitchen
+        fun newCaliforniaKitchen(events: GlobalEvents,
+                                 shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet()): Kitchen
         {
-            return CaliforniaKitchen(shelfSet)
+            return CaliforniaKitchen(events, shelfSet)
         }
     }
 
@@ -57,13 +59,18 @@ interface Kitchen
 // IMPLEMENTATION
 //===========================================
 @StrategyPattern(role = CONCRETE_BEHAVIOR)
-internal class CaliforniaKitchen(private val shelves: ShelfSet): Kitchen
+internal class CaliforniaKitchen(private val events: GlobalEvents,
+                                 private val shelves: ShelfSet): Kitchen
 {
     private val LOG = getLogger()
 
     override fun receiveOrder(request: OrderRequest): Order
     {
+        events.onOrderReceived(request)
+
         val order = prepare(request)
+        events.onOrderPrepared(order)
+
         shelves.addOrder(order)
 
         return order
@@ -72,7 +79,10 @@ internal class CaliforniaKitchen(private val shelves: ShelfSet): Kitchen
     private fun prepare(request: OrderRequest): Order
     {
         LOG.info("Preparing order for [${request.name}]")
-        return Order(request, timeOfOrder = ZonedDateTime.now())
+        val id = StringGenerators.hexadecimalString(40).get()
+        return Order(request,
+                     id = id,
+                     timeOfOrder = ZonedDateTime.now())
     }
 
 }
