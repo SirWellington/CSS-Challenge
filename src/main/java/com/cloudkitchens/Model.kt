@@ -69,15 +69,15 @@ data class OrderRequest(val name: String,
                         val decayRate: Double)
 
 /**
- * @param orderRequest The incoming request that generated this order.
+ * @param request The incoming request that generated this order.
  * @param orderTime The time this order was created.
  * @author SirWellington
  */
-data class Order(val orderRequest: OrderRequest,
+data class Order(val request: OrderRequest,
                  val orderTime: ZonedDateTime = ZonedDateTime.now())
 {
-    val shelfLife get() = orderRequest.shelfLife
-    val decayRate get() = orderRequest.decayRate
+    val shelfLife get() = request.shelfLife
+    val decayRate get() = request.decayRate
 
     /**
      * Returns how the age of the order, in seconds.
