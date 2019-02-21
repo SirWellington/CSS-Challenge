@@ -17,6 +17,7 @@
 package com.cloudkitchens
 
 import tech.sirwellington.alchemy.kotlin.extensions.anyElement
+import tech.sirwellington.alchemy.kotlin.extensions.tryOrNull
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -108,5 +109,10 @@ enum class Temperature
         @JvmStatic
         val any get() = all.anyElement ?: HOT
 
+        @JvmStatic
+        fun fromString(string: String): Temperature?
+        {
+            return tryOrNull { valueOf(string.toUpperCase()) }
+        }
     }
 }
