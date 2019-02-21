@@ -16,6 +16,7 @@
 
 package com.cloudkitchens
 
+import com.cloudkitchens.driver.Driver
 import tech.sirwellington.alchemy.annotations.designs.patterns.SingletonPattern
 import tech.sirwellington.alchemy.kotlin.extensions.asWeak
 import tech.sirwellington.alchemy.kotlin.extensions.removeWhere
@@ -26,10 +27,12 @@ import java.lang.ref.WeakReference
  */
 interface EventListener
 {
-    fun onOrderReceived(request: OrderRequest)
-    fun onOrderPrepared(order: Order)
-    fun onOrderPickedUp(order: Order, driver: Driver)
-    fun onOrderDelivered(order: Order, driver: Driver)
+    fun onOrderReceived(request: OrderRequest) { }
+    fun onOrderPrepared(order: Order) { }
+    fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf) { }
+    fun onOrderDiscarded(order: Order) { }
+    fun onOrderPickedUp(order: Order, driver: Driver) { }
+    fun onOrderDelivered(order: Order, driver: Driver) { }
 }
 
 /**
@@ -61,6 +64,16 @@ object GlobalEvents: EventListener
     override fun onOrderPrepared(order: Order)
     {
         listeners.forEach{ it.get()?.onOrderPrepared(order) }
+    }
+
+    override fun onOrderDiscarded(order: Order)
+    {
+        listeners.forEach { it.get()?.onOrderDiscarded(order) }
+    }
+
+    override fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf)
+    {
+        listeners.forEach { it.get()?.onOrderAddedToShelf(order, shelfSet, shelf) }
     }
 
     override fun onOrderPickedUp(order: Order, driver: Driver)
