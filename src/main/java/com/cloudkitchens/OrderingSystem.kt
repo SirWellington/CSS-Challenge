@@ -26,17 +26,23 @@ import java.util.concurrent.TimeUnit
  *
  * @author SirWellington
  */
-class Scheduler(private val orderGenerator: () -> OrderRequest,
-                private val poissonGenerator: PoissonGenerator,
-                private val λ: Double = 3.25,
-                private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(2),
-                private val kitchen: Kitchen)
+class OrderingSystem
 {
     private val LOG = getLogger()
 
+
+    private var scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private var orderGenerator: OrderGenerator = OrderGenerator.fromResourceFile
+    private var poissonGenerator = PoissonGenerator.KNUTH
+    private var λ = 3.25
+    private var events: GlobalEvents = GlobalEvents
+    private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events)
+    private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
+    private var deliveryTimeRange = 2..10
+
     fun begin()
     {
-        val command = Runnable { run() }
+        val command = Runnable { generateNewOrders() }
         scheduler.scheduleAtFixedRate(command, 0, 1, TimeUnit.SECONDS)
     }
 
@@ -45,10 +51,13 @@ class Scheduler(private val orderGenerator: () -> OrderRequest,
         scheduler.shutdownNow()
     }
 
-    fun run()
+    fun generateNewOrders()
     {
         val newOrderCount = poissonGenerator.getPoisson(λ)
-        val newOrders = createListOf(newOrderCount, orderGenerator)
+        val newOrders = createListOf(newOrderCount)
+        {
+            orderGenerator.generateOrderRequest()
+        }
 
         val orders = newOrders.forEach { kitchen.receiveOrder(it) }
 
