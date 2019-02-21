@@ -10,13 +10,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>love.censio</groupId>
+    <groupId>com.cloudkitches</groupId>
     <artifactId>css-order-system</artifactId>
     <version>1.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
-    <url>https://censio.love/</url>
     <description>
         An order fulfilment system that allows you to place food orders in realtime.
     </description>
@@ -34,7 +33,7 @@
     </developers>
 
     <scm>
-        <connection>scm:git@bgithub.com/SirWellington/CSS-Challenge.git</connection>
+        <connection>scm:git@github.com/SirWellington/CSS-Challenge.git</connection>
         <developerConnection>scm:git@github.com/SirWellington/CSS-Challenge.git</developerConnection>
         <url>https://github.com/SirWellington/CSS-Challenge.git</url>
     </scm>
@@ -553,27 +552,6 @@
         <!--PLUGINS-->
         <!--=======================-->
         <plugins>
-
-            <!--DOWNLOAD JAVADOC STYLESHEET-->
-            <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>download-maven-plugin</artifactId>
-                <version>1.3.0</version>
-                <executions>
-                    <execution>
-                        <id>download-javadoc-stylesheet</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-                        <configuration>
-                            <url>https://s3-us-west-2.amazonaws.com/assets.censio.love/dev/javadoc-style-sheet.css</url>
-                            <outputDirectory>${project.build.directory}/resources/css</outputDirectory>
-                            <failOnError>false</failOnError>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
 
             <!--CODE COVERAGE-->
