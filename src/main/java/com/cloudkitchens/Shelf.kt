@@ -30,6 +30,7 @@ package com.cloudkitchens/*
  * limitations under the License.
  */
 
+import com.cloudkitchens.ShelfType.OVERFLOW
 import com.cloudkitchens.Temperature.COLD
 import com.cloudkitchens.Temperature.FROZEN
 import com.cloudkitchens.Temperature.HOT
@@ -66,47 +67,38 @@ import java.util.concurrent.LinkedBlockingDeque
 // SHELVES
 //===========================================
 @StrategyPattern(role = INTERFACE)
+@FactoryMethodPattern(role = PRODUCT)
 interface Shelf
 {
     val size: Int
     val capacity: Int
-    val temperature: Temperature?
+    val type: ShelfType
     val isAtCapacity: Boolean get() = size >= capacity
+    val notFull get() = !isAtCapacity
 
     fun addOrder(order: Order)
     fun pickupOrder(): Order?
     fun display(): List<OrderDetail>
     fun removeWasteItems()
-}
 
-@FactoryMethodPattern(role = PRODUCT)
-interface ShelfSet
-{
-    val hot: Shelf
-    val cold: Shelf
-    val frozen: Shelf
-    val overflow: Shelf
-
-    companion object
+    companion object Factory
     {
-        @FactoryMethodPattern(role = FACTORY_METHOD)
-        @JvmStatic
-        fun createDefaultShelfSet(): ShelfSet
-        {
-            val hotShelf = ShelfImpl(optimalTemperature = HOT, capacity = 15)
-            val coldShelf = ShelfImpl(optimalTemperature = COLD, capacity = 15)
-            val frozenShelf = ShelfImpl(optimalTemperature = FROZEN, capacity = 15)
-            val overflowShelf = ShelfImpl(optimalTemperature = null, capacity = 20)
 
-            return object: ShelfSet
-            {
-                override val hot: Shelf = hotShelf
-                override val cold: Shelf = coldShelf
-                override val frozen: Shelf = frozenShelf
-                override val overflow: Shelf = overflowShelf
-            }
+        @FactoryMethodPattern(role = FACTORY_METHOD)
+        fun ofType(type: ShelfType): Shelf
+        {
+            val capacity = if (type == OVERFLOW) 20 else 15
+            return ShelfImpl(type = type, capacity = capacity)
         }
     }
+}
+
+enum class ShelfType
+{
+    HOT,
+    COLD,
+    FROZEN,
+    OVERFLOW
 }
 
 data class OrderDetail(val order: Order,
@@ -116,7 +108,7 @@ data class OrderDetail(val order: Order,
 // IMPLEMENTATION
 //===========================================
 @StrategyPattern(role = CONCRETE_BEHAVIOR)
-internal class ShelfImpl(private val optimalTemperature: Temperature?,
+internal class ShelfImpl(override val type: ShelfType,
                          override val capacity: Int = 15): Shelf
 {
 
@@ -124,9 +116,6 @@ internal class ShelfImpl(private val optimalTemperature: Temperature?,
 
     override val size: Int
         get() = orders.size
-
-    override val temperature: Temperature?
-        get() = optimalTemperature
 
     override fun addOrder(order: Order)
     {
@@ -140,9 +129,10 @@ internal class ShelfImpl(private val optimalTemperature: Temperature?,
 
     override fun display(): List<OrderDetail>
     {
-        val details = orders.map {
+        val details = orders.map()
+        {
             OrderDetail(order = it,
-                                          normalizedValue = it.normalizedValue)
+                        normalizedValue = it.normalizedValue)
         }
 
         return details
@@ -155,3 +145,95 @@ internal class ShelfImpl(private val optimalTemperature: Temperature?,
 
 }
 
+//===========================================
+// SHELF SET
+//===========================================
+@FactoryMethodPattern(role = PRODUCT)
+interface ShelfSet
+{
+
+    val hot: Shelf
+    val cold: Shelf
+    val frozen: Shelf
+    val overflow: Shelf
+
+    val shelves get() = listOf(hot, cold, frozen, overflow)
+
+    fun addOrder(order: Order)
+
+    fun removeWaste()
+    {
+        shelves.forEach { it.removeWasteItems() }
+    }
+
+    companion object Factory
+    {
+
+        @FactoryMethodPattern(role = FACTORY_METHOD)
+        fun newDefaultShelfSet(): ShelfSet
+        {
+            val hot = Shelf.ofType(ShelfType.HOT)
+            val cold = Shelf.ofType(ShelfType.COLD)
+            val frozen = Shelf.ofType(ShelfType.FROZEN)
+            val overflow = Shelf.ofType(ShelfType.OVERFLOW)
+
+            return ShelfSetImpl(hot = hot, cold = cold, frozen = frozen, overflow = overflow)
+        }
+    }
+
+}
+
+//===========================================
+// SHELF SET IMPL
+//===========================================
+internal class ShelfSetImpl(override val hot: Shelf,
+                            override val cold: Shelf,
+                            override val frozen: Shelf,
+                            override val overflow: Shelf): ShelfSet
+{
+    private val LOG = getLogger()
+
+    override fun addOrder(order: Order)
+    {
+        LOG.info("Adding order [${order.request.name}] to shelf set")
+
+        val shelf = when (order.request.temp)
+        {
+            COLD   -> cold
+            HOT    -> hot
+            FROZEN -> frozen
+        }
+
+        when
+        {
+            shelf.notFull    -> shelf.addOrder(order)
+            overflow.notFull -> overflow.addOrder(order)
+            else             ->
+            {
+                LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
+                removeWaste()
+
+                if (shelf.notFull)
+                {
+                    LOG.info("[${shelf.type}] shelf now has space. Adding order.")
+                    shelf.addOrder(order)
+                }
+                else if (overflow.notFull)
+                {
+                    LOG.info("overflow shelf now has space. Adding order.")
+                    overflow.addOrder(order)
+                }
+                else
+                {
+                    LOG.warn("No space available for incoming order [$order]. Disposing of it…")
+                    dispose(order)
+                }
+            }
+        }
+    }
+
+    private fun dispose(order: Order)
+    {
+        LOG.info("Disposed of order [${order.request.name}]")
+    }
+}
