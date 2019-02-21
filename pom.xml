@@ -116,7 +116,7 @@
                 <groupId>tech.sirwellington.alchemy</groupId>
                 <artifactId>alchemy-generator</artifactId>
                 <version>2.3.7</version>
-                <scope>test</scope>
+                <scope>compile</scope>
             </dependency>
 
             <dependency>

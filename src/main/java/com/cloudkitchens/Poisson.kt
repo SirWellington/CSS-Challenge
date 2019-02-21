@@ -16,6 +16,9 @@
 
 package com.cloudkitchens
 
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
 import kotlin.random.Random
 
 
@@ -23,12 +26,20 @@ import kotlin.random.Random
  *
  * @author SirWellington
  */
+@StrategyPattern(role = INTERFACE)
 interface PoissonGenerator
 {
     fun getPoisson(lambda: Double): Int
+
+    companion object
+    {
+        val KNUTH : PoissonGenerator = KnuthPoissonGenerator()
+        val LINEAR: PoissonGenerator = LinearPoissonGenerator()
+    }
 }
 
-class SimplePoissonGenerator: PoissonGenerator
+@StrategyPattern(role = CONCRETE_BEHAVIOR)
+class KnuthPoissonGenerator: PoissonGenerator
 {
 
     override fun getPoisson(lambda: Double): Int
@@ -48,7 +59,11 @@ class SimplePoissonGenerator: PoissonGenerator
     }
 }
 
-class KnuthPoissonGenerator(private var STEP: Int): PoissonGenerator
+/**
+ * Taken from [https://en.wikipedia.org/wiki/Poisson_distribution#Generating_Poisson-distributed_random_variables](https://en.wikipedia.org/wiki/Poisson_distribution#Generating_Poisson-distributed_random_variables).
+ */
+@StrategyPattern(role = CONCRETE_BEHAVIOR)
+private class LinearPoissonGenerator(private var STEP: Int = 500): PoissonGenerator
 {
 
     private val eSTEP = Math.exp(STEP.toDouble())

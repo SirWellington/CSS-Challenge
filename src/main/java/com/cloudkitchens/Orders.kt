@@ -45,10 +45,12 @@ data class OrderRequest(val name: String,
  * Represents an order that has been fulfilled by the [Kitchen].
  *
  * @param request The incoming request that generated this order.
+ * @param id The unique ID of this order.
  * @param timeOfOrder The time this order was created.
  * @author SirWellington
  */
 data class Order(val request: OrderRequest,
+                 val id: String,
                  val timeOfOrder: ZonedDateTime = ZonedDateTime.now())
 {
     val shelfLife get() = request.shelfLife

@@ -41,16 +41,18 @@ import java.util.concurrent.LinkedBlockingDeque
 @FactoryMethodPattern(role = PRODUCT)
 interface Shelf
 {
-    val size: Int
     val capacity: Int
     val type: ShelfType
+    val items: List<Order>
+    val size: Int get() = items.size
     val isAtCapacity: Boolean get() = size >= capacity
     val notFull get() = !isAtCapacity
 
     fun addOrder(order: Order)
-    fun pickupOrder(): Order?
     fun display(): List<OrderDetail>
+    fun pickupOrder(orderId: String): Order?
     fun removeWasteItems()
+    fun removeItemWithTemperature(temperature: Temperature): Order?
 
     companion object Factory
     {
@@ -85,6 +87,9 @@ internal class ShelfImpl(override val type: ShelfType,
 
     private val orders = LinkedBlockingDeque<Order>()
 
+    override val items: List<Order>
+        get() =  orders.toList()
+
     override val size: Int
         get() = orders.size
 
@@ -93,9 +98,12 @@ internal class ShelfImpl(override val type: ShelfType,
         orders.add(order)
     }
 
-    override fun pickupOrder(): Order?
+    override fun pickupOrder(orderId: String): Order?
     {
-        return orders.poll()
+        val order = orders.firstOrNull { it.id == orderId } ?: return null
+        orders.remove(order)
+
+        return order
     }
 
     override fun display(): List<OrderDetail>
@@ -114,6 +122,12 @@ internal class ShelfImpl(override val type: ShelfType,
         orders.removeIf { it.isWaste }
     }
 
+    override fun removeItemWithTemperature(temperature: Temperature): Order?
+    {
+        val first = orders.firstOrNull { it.request.temp == temperature } ?: return null
+        orders.remove(first)
+        return first
+    }
 }
 
 //===========================================
@@ -132,6 +146,8 @@ interface ShelfSet
 
     fun addOrder(order: Order)
 
+    fun pickupOrder(orderId: String): Order?
+
     fun removeWaste()
     {
         shelves.forEach { it.removeWasteItems() }
@@ -141,14 +157,18 @@ interface ShelfSet
     {
 
         @FactoryMethodPattern(role = FACTORY_METHOD)
-        fun newDefaultShelfSet(): ShelfSet
+        fun newDefaultShelfSet(events: GlobalEvents): ShelfSet
         {
             val hot = Shelf.ofType(ShelfType.HOT)
             val cold = Shelf.ofType(ShelfType.COLD)
             val frozen = Shelf.ofType(ShelfType.FROZEN)
             val overflow = Shelf.ofType(ShelfType.OVERFLOW)
 
-            return ShelfSetImpl(hot = hot, cold = cold, frozen = frozen, overflow = overflow)
+            return ShelfSetImpl(events = events,
+                                hot = hot,
+                                cold = cold,
+                                frozen = frozen,
+                                overflow = overflow)
         }
     }
 
@@ -157,7 +177,8 @@ interface ShelfSet
 //===========================================
 // SHELF SET IMPL
 //===========================================
-internal class ShelfSetImpl(override val hot: Shelf,
+internal class ShelfSetImpl(private val events: GlobalEvents,
+                            override val hot: Shelf,
                             override val cold: Shelf,
                             override val frozen: Shelf,
                             override val overflow: Shelf): ShelfSet
@@ -166,7 +187,7 @@ internal class ShelfSetImpl(override val hot: Shelf,
 
     override fun addOrder(order: Order)
     {
-        LOG.info("Adding order [${order.request.name}] to shelf set")
+        LOG.info("Adding order [${order.id}] to shelf set")
 
         val shelf = when (order.request.temp)
         {
@@ -177,8 +198,16 @@ internal class ShelfSetImpl(override val hot: Shelf,
 
         when
         {
-            shelf.notFull    -> shelf.addOrder(order)
-            overflow.notFull -> overflow.addOrder(order)
+            shelf.notFull    ->
+            {
+                shelf.addOrder(order)
+                events.onOrderAddedToShelf(order, shelf)
+            }
+            overflow.notFull ->
+            {
+                overflow.addOrder(order)
+                events.onOrderAddedToShelf(order, overflow)
+            }
             else             ->
             {
                 LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
@@ -188,23 +217,32 @@ internal class ShelfSetImpl(override val hot: Shelf,
                 {
                     LOG.info("[${shelf.type}] shelf now has space. Adding order.")
                     shelf.addOrder(order)
+                    events.onOrderAddedToShelf(order, shelf)
                 }
                 else if (overflow.notFull)
                 {
                     LOG.info("overflow shelf now has space. Adding order.")
                     overflow.addOrder(order)
+                    events.onOrderAddedToShelf(order, overflow)
                 }
                 else
                 {
-                    LOG.warn("No space available for incoming order [$order]. Disposing of it…")
+                    LOG.warn("No space available for incoming order [${order.id}]. Disposing of it…")
                     dispose(order)
                 }
             }
         }
     }
 
+    override fun pickupOrder(orderId: String): Order?
+    {
+        return shelves.map { it.pickupOrder(orderId) }.firstOrNull()
+    }
+
     private fun dispose(order: Order)
     {
-        LOG.info("Disposed of order [${order.request.name}]")
+        LOG.info("Disposed of order [${order.id}]")
+        events.onOrderDiscarded(order)
     }
+
 }
