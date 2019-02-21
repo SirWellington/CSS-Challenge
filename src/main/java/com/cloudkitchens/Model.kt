@@ -70,11 +70,11 @@ data class OrderRequest(val name: String,
 
 /**
  * @param request The incoming request that generated this order.
- * @param orderTime The time this order was created.
+ * @param timeOfOrder The time this order was created.
  * @author SirWellington
  */
 data class Order(val request: OrderRequest,
-                 val orderTime: ZonedDateTime = ZonedDateTime.now())
+                 val timeOfOrder: ZonedDateTime = ZonedDateTime.now())
 {
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
@@ -86,7 +86,7 @@ data class Order(val request: OrderRequest,
         get()
         {
             val now = ZonedDateTime.now()
-            return orderTime.until(now, ChronoUnit.SECONDS).absoluteValue
+            return timeOfOrder.until(now, ChronoUnit.SECONDS).absoluteValue
         }
 
     /** Determines the value of the current order.*/

@@ -25,6 +25,7 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPatt
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
+import java.time.ZonedDateTime
 
 /*
  * Copyright 2019 SirWellington
@@ -104,7 +105,7 @@ internal class CaliforniaKitchen(private val shelves: ShelfSet): Kitchen
     private fun prepare(request: OrderRequest): Order
     {
         LOG.info("Preparing order for [${request.name}]")
-        return Order(request)
+        return Order(request, timeOfOrder = ZonedDateTime.now())
     }
 
 }
