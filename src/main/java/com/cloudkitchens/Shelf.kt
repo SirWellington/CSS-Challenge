@@ -189,6 +189,11 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
     {
         LOG.info("Adding order [${order.id}] to shelf set")
 
+        _addOrder(order)
+    }
+
+    private fun _addOrder(order: Order, didOverflow: Boolean = false)
+    {
         val shelf = when (order.request.temp)
         {
             COLD   -> cold
@@ -201,33 +206,24 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
             shelf.notFull    ->
             {
                 shelf.addOrder(order)
-                events.onOrderAddedToShelf(order, shelf)
+                events.onOrderAddedToShelf(order, this, shelf)
             }
             overflow.notFull ->
             {
                 overflow.addOrder(order)
-                events.onOrderAddedToShelf(order, overflow)
+                events.onOrderAddedToShelf(order, this, overflow)
             }
             else             ->
             {
                 LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
                 removeWaste()
 
-                if (shelf.notFull)
+                if (!didOverflow)
                 {
-                    LOG.info("[${shelf.type}] shelf now has space. Adding order.")
-                    shelf.addOrder(order)
-                    events.onOrderAddedToShelf(order, shelf)
-                }
-                else if (overflow.notFull)
-                {
-                    LOG.info("overflow shelf now has space. Adding order.")
-                    overflow.addOrder(order)
-                    events.onOrderAddedToShelf(order, overflow)
+                    _addOrder(order, didOverflow = true)
                 }
                 else
                 {
-                    LOG.warn("No space available for incoming order [${order.id}]. Disposing of it…")
                     dispose(order)
                 }
             }

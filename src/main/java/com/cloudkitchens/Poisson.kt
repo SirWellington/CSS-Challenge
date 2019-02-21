@@ -33,13 +33,13 @@ interface PoissonGenerator
 
     companion object
     {
-        val KNUTH : PoissonGenerator = KnuthPoissonGenerator()
         val LINEAR: PoissonGenerator = LinearPoissonGenerator()
+        val KNUTH : PoissonGenerator = KnuthPoissonGenerator()
     }
 }
 
 @StrategyPattern(role = CONCRETE_BEHAVIOR)
-class KnuthPoissonGenerator: PoissonGenerator
+private class KnuthPoissonGenerator: PoissonGenerator
 {
 
     override fun getPoisson(lambda: Double): Int
@@ -66,25 +66,10 @@ class KnuthPoissonGenerator: PoissonGenerator
 private class LinearPoissonGenerator(private var STEP: Int = 500): PoissonGenerator
 {
 
-    private val eSTEP = Math.exp(STEP.toDouble())
+    private var eSTEP = Math.exp(STEP.toDouble())
 
     override fun getPoisson(lambda: Double): Int
     {
-
-//        init:
-//         Let λLeft ← λ, k ← 0 and p ← 1.
-//            do:
-//                 k ← k + 1.
-//                 Generate uniform random number u in (0,1) and let p ← p × u.
-//                 while p < 1 and λLeft > 0:
-//                      if λLeft > STEP:
-//                           p ← p × eSTEP
-//                           λLeft ← λLeft − STEP
-//                      else:
-//                           p ← p × eλLeft
-//                           λLeft ← 0
-//            while p > 1.
-//            return k − 1.
 
         var λ = 0
         var k = 0

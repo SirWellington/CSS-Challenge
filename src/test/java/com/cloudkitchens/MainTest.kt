@@ -16,11 +16,10 @@
 
 package com.cloudkitchens
 
-import com.natpryce.hamkrest.assertion.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import tech.sirwellington.alchemy.test.hamcrest.notEmpty
-import tech.sirwellington.alchemy.test.junit.runners.*
+import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat
 
 @RunWith(AlchemyTestRunner::class)
 class MainTest
@@ -30,8 +29,7 @@ class MainTest
     @Test
     fun testParseOrders()
     {
-        val orders = Main.parseOrders()
-        assertThat(orders, notEmpty)
+        Main.main(emptyArray())
     }
 
 }
