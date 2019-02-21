@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.checkerframework.checker.units.qual.Temperature
+import tech.sirwellington.alchemy.kotlin.extensions.anyElement
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -87,4 +87,16 @@ enum class Temperature
     FROZEN,
     COLD,
     HOT
+
+    ;
+
+    companion object
+    {
+        @JvmStatic
+        val all = values().toList()
+
+        @JvmStatic
+        val any get() = all.anyElement ?: HOT
+
+    }
 }
