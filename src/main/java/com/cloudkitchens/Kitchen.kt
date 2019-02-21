@@ -16,9 +16,6 @@
 
 package com.cloudkitchens
 
-import com.cloudkitchens.Temperature.COLD
-import com.cloudkitchens.Temperature.FROZEN
-import com.cloudkitchens.Temperature.HOT
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.FACTORY_METHOD
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.PRODUCT
@@ -64,7 +61,7 @@ interface Kitchen
     {
 
         @FactoryMethodPattern(role = FACTORY_METHOD)
-        fun newCaliforniaKitchen(shelfSet: ShelfSet = ShelfSet.createDefaultShelfSet()): Kitchen
+        fun newCaliforniaKitchen(shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet()): Kitchen
         {
             return CaliforniaKitchen(shelfSet)
         }
@@ -83,21 +80,7 @@ internal class CaliforniaKitchen(private val shelves: ShelfSet): Kitchen
     override fun receiveOrder(request: OrderRequest): Order
     {
         val order = prepare(request)
-
-        val shelf = when (request.temp)
-        {
-            COLD   -> shelves.cold
-            HOT    -> shelves.hot
-            FROZEN -> shelves.frozen
-        }
-        if (shelf.isAtCapacity)
-        {
-            shelves.overflow.addOrder(order)
-        }
-        else
-        {
-            shelf.addOrder(order)
-        }
+        shelves.addOrder(order)
 
         return order
     }
