@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright © 2019 Censio, LLC. All rights reserved.
+  -->
+
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>love.censio</groupId>
+    <artifactId>css-order-system</artifactId>
+    <version>1.1-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
+    <packaging>pom</packaging>
+
+    <url>https://censio.love/</url>
+    <description>
+        An order fulfilment system that allows you to place food orders in realtime.
+    </description>
+    <developers>
+        <developer>
+            <name>Wellington Moreno</name>
+            <email>jwellington.moreno@gmail.com</email>
+            <id>SirWellington</id>
+            <roles>
+                <role>owner</role>
+                <role>designer</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git@bgithub.com/SirWellington/CSS-Challenge.git</connection>
+        <developerConnection>scm:git@github.com/SirWellington/CSS-Challenge.git</developerConnection>
+        <url>https://github.com/SirWellington/CSS-Challenge.git</url>
+    </scm>
+
+    <inceptionYear>2019</inceptionYear>
+
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+
+    <!-- END OF POM METADATA -->
+
+    <properties>
+
+        <!--Java Compiler Properties-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!--KOTLIN VERSION-->
+        <kotlin.version>1.3.21</kotlin.version>
+
+        <!--DROPWIZARD VERSION-->
+        <dropwizard.version>1.3.8</dropwizard.version>
+
+        <!--AWS SDK VERSION-->
+        <aws.version>1.11.492</aws.version>
+    </properties>
+
+    <pluginRepositories>
+
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+
+    </pluginRepositories>
+
+        <dependencies>
+
+            <!--=======================-->
+            <!--ALCHEMY-->
+            <!--=======================-->
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-annotations</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-arguments</artifactId>
+                <version>2.2.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-collections</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-generator</artifactId>
+                <version>2.3.7</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-http</artifactId>
+                <version>3.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-http-mock</artifactId>
+                <version>3.3</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-thrift</artifactId>
+                <version>2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-test</artifactId>
+                <version>2.5</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tech.sirwellington.alchemy</groupId>
+                <artifactId>alchemy-kotlin</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--AROMA-->
+            <!--=======================-->
+            <dependency>
+                <groupId>tech.aroma</groupId>
+                <artifactId>aroma-java-client</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--KOTLIN-->
+            <!--=======================-->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk7</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+
+            <!--=======================-->
+            <!--LOGGING-->
+            <!--=======================-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.25</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+
+            <!--Disables Logging during unit testing-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-nop</artifactId>
+                <version>1.7.25</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--=======================-->
+            <!--GUAVA-->
+            <!--=======================-->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>27.0.1-jre</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--GSON-->
+            <!--=======================-->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.5</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--GUICE-->
+            <!--=======================-->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>4.2.2</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--DECORATOR LIBRARY-->
+            <!--=======================-->
+            <dependency>
+                <groupId>tech.sirwellington.decorice</groupId>
+                <artifactId>decorice</artifactId>
+                <version>1.0</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--THRIFT-->
+            <!--=======================-->
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>0.12.0</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--JASYPT (Encryption)-->
+            <!--=======================-->
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>1.9.2</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--SQL-->
+            <!--=======================-->
+
+            <!--POSTGRESQL-->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.5</version>
+            </dependency>
+
+            <!--POSTGIS-->
+            <dependency>
+                <groupId>net.postgis</groupId>
+                <artifactId>postgis-jdbc</artifactId>
+                <version>2.3.0</version>
+            </dependency>
+
+
+            <!--SPRING JDBC TEMPLATES-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>5.1.4.RELEASE</version>
+            </dependency>
+
+            <!--HIKARI CONNECTION POOL-->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+
+            <!--JDBI-->
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-bom</artifactId>
+                <type>pom</type>
+                <version>3.6.0</version>
+                <scope>import</scope>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--COMMAND LINE OPTIONS-->
+            <!--=======================-->
+            <dependency>
+                <groupId>net.sf.jopt-simple</groupId>
+                <artifactId>jopt-simple</artifactId>
+                <version>5.0.4</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--UNIT TESTING-->
+            <!--=======================-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.24.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>2.1</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--KOTLIN UNIT TESTS-->
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test-junit</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.natpryce</groupId>
+                <artifactId>hamkrest</artifactId>
+                <version>1.6.0.0</version>
+                <scope>test</scope>
+            </dependency>
+
+
+            <!--KOTLIN MOCKITO INTEROPERABILITY-->
+            <dependency>
+                <groupId>com.nhaarman</groupId>
+                <artifactId>mockito-kotlin</artifactId>
+                <version>1.6.0</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>kotlin-stdlib</artifactId>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--SPARK FRAMEWORK-->
+            <!--=======================-->
+            <dependency>
+                <groupId>com.sparkjava</groupId>
+                <artifactId>spark-core</artifactId>
+                <version>2.8.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sparkjava</groupId>
+                <artifactId>spark-kotlin</artifactId>
+                <version>1.0.0-alpha</version>
+            </dependency>
+
+
+            <!--=======================-->
+            <!--DROP WIZARD-->
+            <!--=======================-->
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-core</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>4.0.5</version>
+            </dependency>
+
+        </dependencies>
+
+    <build>
+
+
+        <!--=======================-->
+        <!--EXTENSIONS-->
+        <!--=======================-->
+        <extensions>
+            <extension>
+                <groupId>org.kuali.maven.wagons</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.2.1</version>
+            </extension>
+        </extensions>
+
+
+        <!--=======================-->
+        <!--PLUGIN MANAGEMENT-->
+        <!--=======================-->
+        <pluginManagement>
+
+            <plugins>
+
+                <!--JAR PLUGIN-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+
+                <!--JAVADOC-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <failOnError>false</failOnError>
+                        <linksource>true</linksource>
+                        <links>
+                            <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                        </links>
+                        <stylesheetfile>${project.build.directory}/resources/css/javadoc-style-sheet.css
+                        </stylesheetfile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--KOTLIN JAVADOCS-->
+                <plugin>
+                    <groupId>org.jetbrains.dokka</groupId>
+                    <artifactId>dokka-maven-plugin</artifactId>
+                    <version>0.9.16</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>dokka</goal>
+                                <goal>javadoc</goal>
+                                <goal>javadocJar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--SOURCES-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+
+                <!--DEPENDENCY PLUGIN-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                <overWriteReleases>true</overWriteReleases>
+                                <overWriteSnapshots>true</overWriteSnapshots>
+                                <overWriteIfNewer>true</overWriteIfNewer>
+                                <!--Set This to enabled Timestamped-Snapshot jars-->
+                                <!--<useBaseVersion>false</useBaseVersion>-->
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <configuration>
+                        <descriptors>
+                            <descriptor>${project.basedir}/src/main/assembly/assembly.xml</descriptor>
+                        </descriptors>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+
+            </plugins>
+        </pluginManagement>
+
+
+        <!--=======================-->
+        <!--PLUGINS-->
+        <!--=======================-->
+        <plugins>
+
+            <!--DOWNLOAD JAVADOC STYLESHEET-->
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <id>download-javadoc-stylesheet</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://s3-us-west-2.amazonaws.com/assets.censio.love/dev/javadoc-style-sheet.css</url>
+                            <outputDirectory>${project.build.directory}/resources/css</outputDirectory>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!--CODE COVERAGE-->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.3</version>
+                <configuration>
+                    <excludes>
+                        <!--Exclude Exceptions-->
+                        <exclude>**/*Exception.*</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+
+                        <configuration>
+                            <rules>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!--KOTLIN-->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!--SUREFIRE MAVEN TEST PLUGIN-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
+                <configuration>
+                    <argLine>${argLine} -Xmx2G</argLine>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Test.kt</include>
+                        <include>**/*Tests.kt</include>
+                    </includes>
+
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+
+            <build>
+                <plugins>
+
+                    <!--CODE SIGNING-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!--INTEGRATION TESTING ON RELEASE-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.22.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
+</project>
