@@ -40,12 +40,22 @@ class RandomOrderGeneratorTest: BaseOrderGeneratorTest()
     {
         return OrderGenerator.random
     }
+
+    @DontRepeat
+    @Test
+    fun testOrderUniqueness()
+    {
+        val size = Int.random(100, 1_000)
+        val orders = createListOf(size) { instance.generateOrderRequest() }
+        val set = orders.toSet()
+        assertThat(set.size, equalTo(size))
+    }
+
 }
 
 //===========================================
 // FROM RESOURCE FILE
 //===========================================
-
 class GeneratorFromResourceTests: BaseOrderGeneratorTest()
 {
 
@@ -80,16 +90,6 @@ abstract class BaseOrderGeneratorTest
     {
         val order = instance.generateOrderRequest()
         assertThat(order, notNull)
-    }
-
-    @DontRepeat
-    @Test
-    fun testOrderUniqueness()
-    {
-        val size = Int.random(100, 1_000)
-        val orders = createListOf(size) { instance.generateOrderRequest() }
-        val set = orders.toSet()
-        assertThat(set.size, equalTo(size))
     }
 
 }
