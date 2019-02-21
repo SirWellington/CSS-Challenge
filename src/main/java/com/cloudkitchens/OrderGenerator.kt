@@ -16,7 +16,6 @@
 
 package com.cloudkitchens
 
-import com.cloudkitchens.OrderGenerator.Companion.random
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -79,7 +78,7 @@ internal class GeneratorFromResource: OrderGenerator
 
     override fun generateOrderRequest(): OrderRequest
     {
-        return orders.anyElement ?: random.generateOrderRequest()
+        return orders.anyElement!!
     }
 
     internal fun parseOrders(): List<OrderRequest>
