@@ -27,6 +27,8 @@ import kotlin.math.absoluteValue
 //===========================================
 
 /**
+ * Represents an incoming order to the system.
+ *
  * @param name The name of the order
  * @param temp The temperature of the food, as measured in [Temperature]
  * @param shelfLife Read in seconds
@@ -40,6 +42,8 @@ data class OrderRequest(val name: String,
                         val decayRate: Double)
 
 /**
+ * Represents an order that has been fulfilled by the [Kitchen].
+ *
  * @param request The incoming request that generated this order.
  * @param timeOfOrder The time this order was created.
  * @author SirWellington
