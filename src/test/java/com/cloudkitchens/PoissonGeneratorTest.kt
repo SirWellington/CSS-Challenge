@@ -18,12 +18,14 @@ package com.cloudkitchens
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.greaterThanOrEqualTo
+import com.natpryce.hamkrest.lessThan
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import tech.sirwellington.alchemy.generator.NumberGenerators
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner
 import tech.sirwellington.alchemy.test.junit.runners.Repeat
+import kotlin.math.roundToInt
 
 
 //===========================================
@@ -34,7 +36,7 @@ class LinearPoissonGeneratorTest: PoissonGeneratorTest()
 
     override fun createInstance(): PoissonGenerator
     {
-        return PoissonGenerator.KNUTH
+        return PoissonGenerator.LINEAR
     }
 
 }
@@ -72,9 +74,18 @@ abstract class PoissonGeneratorTest
     @Test
     fun testGetPoisson()
     {
-        val λ = NumberGenerators.doubles(0.0, 100.0).get()
+        val min = 1.0
+        val max = 100.0
+        val λ = NumberGenerators.doubles(min, max).get()
         val result = instance.getPoisson(λ)
         assertThat(result, greaterThanOrEqualTo(0))
+        assertThat(result, lessThan(max.toInt() toThe 2))
     }
+
+    private infix fun Int.toThe(rhs: Int): Int
+    {
+        return Math.pow(this.toDouble(), rhs.toDouble()).roundToInt()
+    }
+
 
 }
