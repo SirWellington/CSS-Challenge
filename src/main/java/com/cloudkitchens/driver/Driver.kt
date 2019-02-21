@@ -22,9 +22,10 @@ import com.cloudkitchens.getLogger
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit.SECONDS
 
-//===========================================
-// DRIVER
-//===========================================
+/**
+ * Responsible for picking up orders and making deliveries.
+ * @author SirWellington
+ */
 class Driver(private val driverId: String,
              private val events: GlobalEvents,
              private val scheduler: ScheduledExecutorService,
