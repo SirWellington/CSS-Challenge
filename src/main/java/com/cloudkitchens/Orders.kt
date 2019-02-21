@@ -79,6 +79,15 @@ data class Order(val request: OrderRequest,
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
 
+    fun decayRateIn(shelf: Shelf): Double
+    {
+        return when (shelf.type)
+        {
+            ShelfType.OVERFLOW -> decayRate * 2
+            else               -> decayRate
+        }
+    }
+
     /**
      * Returns how the age of the order, in seconds.
      */
