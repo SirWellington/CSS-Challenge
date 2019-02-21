@@ -15,6 +15,25 @@
  */
 
 /**
+ * Where orders are placed once they are ready for delivery.
  *
  * @author SirWellington
  */
+//===========================================
+// SHELVES
+//===========================================
+interface Shelf
+{
+    val size: Int
+    val capacity: Int
+    val temparature: Temperature?
+
+    fun addOrder(order: Order)
+    fun pickupOrder(): Order?
+    fun display(): List<OrderDetail>
+    fun removeWasteItems()
+
+}
+
+data class OrderDetail(val order: Order,
+                       val normalizedValue: Double)
