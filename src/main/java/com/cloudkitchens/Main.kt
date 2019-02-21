@@ -57,15 +57,15 @@ object Main
         LOG.info("Parsed [${orders.size}] orders.")
     }
 
-    internal fun parseOrders(): List<Order>
+    internal fun parseOrders(): List<OrderRequest>
     {
         val file = this.javaClass.classLoader.getResource("data/sample-data.json") ?: return emptyList()
         val json = file.readText(Charsets.UTF_8)
-        val type = object: TypeToken<List<Order>>() {}
+        val type = object: TypeToken<List<OrderRequest>>() {}
 
         return try
         {
-            gson.fromJson<List<Order>>(json, type.type)
+            gson.fromJson<List<OrderRequest>>(json, type.type)
         }
         catch (ex: Exception)
         {

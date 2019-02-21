@@ -56,7 +56,6 @@ import kotlin.math.absoluteValue
 //===========================================
 
 /**
- *
  * @param name The name of the order
  * @param temp The temperature of the food, as measured in [Temperature]
  * @param shelfLife Read in seconds
@@ -64,12 +63,21 @@ import kotlin.math.absoluteValue
  *                  Once the value of an order reaches 0, it is defined as waste and should be removed from the shelf.
  * @author SirWellington
  */
-data class Order(val name: String,
-                 val temp: Temperature,
-                 val shelfLife: Int,
-                 var decayRate: Double,
-                 val orderTime: ZonedDateTime)
+data class OrderRequest(val name: String,
+                        val temp: Temperature,
+                        val shelfLife: Int,
+                        val decayRate: Double)
+
+/**
+ * @param orderRequest The incoming request that generated this order.
+ * @param orderTime The time this order was created.
+ * @author SirWellington
+ */
+data class Order(val orderRequest: OrderRequest,
+                 val orderTime: ZonedDateTime = ZonedDateTime.now())
 {
+    val shelfLife get() = orderRequest.shelfLife
+    val decayRate get() = orderRequest.decayRate
 
     /**
      * Returns how the age of the order, in seconds.

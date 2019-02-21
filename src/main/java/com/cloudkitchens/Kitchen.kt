@@ -46,27 +46,28 @@ interface Kitchen
 {
 
     /**
-     * Receives the order, prepares it, and places it on a shelf.
+     * Receives an order request, prepares it, and places it on a shelf.
+     * @return The [Order] that was just prepared.
      */
-    fun receiveOrder(order: Order)
+    fun receiveOrder(request: OrderRequest): Order
 
 }
 
 //===========================================
 // IMPLEMENTATION
 //===========================================
-internal class CaliforniaKitchen(val hotShelf: Shelf,
-                                 val coldShelf: Shelf,
-                                 val frozenShelf: Shelf,
-                                 val overflowShelf: Shelf): Kitchen
+internal class CaliforniaKitchen(private val hotShelf: Shelf,
+                                 private val coldShelf: Shelf,
+                                 private val frozenShelf: Shelf,
+                                 private val overflowShelf: Shelf): Kitchen
 {
     private val LOG = getLogger()
 
-    override fun receiveOrder(order: Order)
+    override fun receiveOrder(request: OrderRequest): Order
     {
-        prepare(order)
+        val order = prepare(request)
 
-        val shelf = when (order.temp)
+        val shelf = when (request.temp)
         {
             COLD   -> coldShelf
             HOT    -> hotShelf
@@ -81,11 +82,14 @@ internal class CaliforniaKitchen(val hotShelf: Shelf,
         {
             shelf.addOrder(order)
         }
+
+        return order
     }
 
-    private fun prepare(order: Order)
+    private fun prepare(request: OrderRequest): Order
     {
-        LOG.info("Preparing order for [${order.name}]")
+        LOG.info("Preparing order for [${request.name}]")
+        return Order(request)
     }
 
 }

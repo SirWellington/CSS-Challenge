@@ -30,6 +30,9 @@ package com.cloudkitchens/*
  * limitations under the License.
  */
 
+import com.cloudkitchens.Temperature.COLD
+import com.cloudkitchens.Temperature.FROZEN
+import com.cloudkitchens.Temperature.HOT
 import java.util.concurrent.LinkedBlockingDeque
 
 /*
@@ -72,19 +75,31 @@ interface Shelf
     {
 
         @JvmStatic
-        fun createDefaultShelves(): List<Shelf>
+        fun createDefaultShelfSet(): ShelfSet
         {
-            val normalShelves = Temperature.all.map()
+            val hotShelf = ShelfImpl(optimalTemperature = HOT, capacity = 15)
+            val coldShelf = ShelfImpl(optimalTemperature = COLD, capacity = 15)
+            val frozenShelf = ShelfImpl(optimalTemperature = FROZEN, capacity = 15)
+            val overflowShelf = ShelfImpl(optimalTemperature = null, capacity = 20)
+
+            return object: ShelfSet
             {
-                ShelfImpl(optimalTemperature = it, capacity = 15)
+                override val hotShelf: Shelf = hotShelf
+                override val coldShelf: Shelf = coldShelf
+                override val frozenShelf: Shelf = frozenShelf
+                override val overflowShelf: Shelf = overflowShelf
             }
-
-            val overflowShelf = ShelfImpl(optimalTemperature = null,
-                                                            capacity = 20)
-
-            return normalShelves + overflowShelf
         }
     }
+
+}
+
+interface ShelfSet
+{
+    val hotShelf: Shelf
+    val coldShelf: Shelf
+    val frozenShelf: Shelf
+    val overflowShelf: Shelf
 }
 
 data class OrderDetail(val order: Order,
@@ -131,3 +146,4 @@ internal class ShelfImpl(private val optimalTemperature: Temperature?,
     }
 
 }
+
