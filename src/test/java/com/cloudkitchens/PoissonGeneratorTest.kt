@@ -57,7 +57,7 @@ class KnuthPoissonGeneratorTest: PoissonGeneratorTest()
 // BASE TEST CLASS
 //===========================================
 @RunWith(AlchemyTestRunner::class)
-@Repeat
+@Repeat(1_000)
 abstract class PoissonGeneratorTest
 {
 
