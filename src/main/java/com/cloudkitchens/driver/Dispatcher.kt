@@ -25,15 +25,16 @@ import java.util.concurrent.ScheduledExecutorService
  *
  * @author SirWellington
  */
-class Dispatcher(private val events: GlobalEvents,
-                 private val scheduler: ScheduledExecutorService,
+class Dispatcher(private val scheduler: ScheduledExecutorService,
                  private val trafficDelayRange: IntRange): EventListener
 {
 
     private val LOG = getLogger()
+    private lateinit var events: GlobalEvents
 
-    init
+    fun registerIn(events: GlobalEvents)
     {
+        this.events = events
         events.subscribe(this)
     }
 

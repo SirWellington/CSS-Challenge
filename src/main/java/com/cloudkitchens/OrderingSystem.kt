@@ -16,6 +16,7 @@
 
 package com.cloudkitchens
 
+import com.cloudkitchens.driver.Dispatcher
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -31,7 +32,7 @@ class OrderingSystem
     private val LOG = getLogger()
 
 
-    private var scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private var scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(4)
     private var orderGenerator: OrderGenerator = OrderGenerator.fromResourceFile
     private var poissonGenerator = PoissonGenerator.KNUTH
     private var λ = 3.25
@@ -40,10 +41,16 @@ class OrderingSystem
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
     private var deliveryTimeRange = 2..10
 
+    private var dispatcher = Dispatcher(trafficDelayRange = deliveryTimeRange,
+                                        scheduler = scheduler)
+
+
     fun begin()
     {
-        val command = Runnable { generateNewOrders() }
-        scheduler.scheduleAtFixedRate(command, 0, 1, TimeUnit.SECONDS)
+        dispatcher.registerIn(events)
+
+        val generateOrders = Runnable { generateNewOrders() }
+        scheduler.scheduleAtFixedRate(generateOrders, 0, 1, TimeUnit.SECONDS)
     }
 
     fun stop()
@@ -51,7 +58,7 @@ class OrderingSystem
         scheduler.shutdownNow()
     }
 
-    fun generateNewOrders()
+    private fun generateNewOrders()
     {
         val newOrderCount = poissonGenerator.getPoisson(λ)
         val newOrders = createListOf(newOrderCount)
@@ -59,8 +66,9 @@ class OrderingSystem
             orderGenerator.generateOrderRequest()
         }
 
+        LOG.info("Generating [$newOrderCount] new orders…")
         val orders = newOrders.forEach { kitchen.receiveOrder(it) }
-
         LOG.info("Added [$newOrderCount] new orders to the kitchen")
     }
+
 }
