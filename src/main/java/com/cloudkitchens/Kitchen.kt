@@ -47,7 +47,7 @@ interface Kitchen
 
         @FactoryMethodPattern(role = FACTORY_METHOD)
         fun newCaliforniaKitchen(events: GlobalEvents,
-                                 shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events)): Kitchen
+                                 shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events = events)): Kitchen
         {
             return CaliforniaKitchen(events, shelfSet)
         }

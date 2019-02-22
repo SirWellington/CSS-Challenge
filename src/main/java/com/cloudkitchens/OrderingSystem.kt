@@ -38,7 +38,7 @@ class OrderingSystem
     private var poissonGenerator = PoissonGenerator.KNUTH
     private var λ = 3.25
     private var events: GlobalEvents = GlobalEvents
-    private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events)
+    private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events = events)
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
     private var deliveryTimeRange = 2..10
 

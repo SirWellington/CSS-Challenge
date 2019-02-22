@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap
 @FactoryMethodPattern(role = PRODUCT)
 interface Shelf
 {
+
     val capacity: Int
     val type: ShelfType
     val items: List<Order>
@@ -144,18 +145,17 @@ interface ShelfSet
     {
 
         @FactoryMethodPattern(role = FACTORY_METHOD)
-        fun newDefaultShelfSet(events: GlobalEvents): ShelfSet
+        fun newDefaultShelfSet(hotShelf: Shelf = Shelf.ofType(ShelfType.HOT),
+                               coldShelf: Shelf = Shelf.ofType(ShelfType.COLD),
+                               frozenShelf: Shelf = Shelf.ofType(ShelfType.FROZEN),
+                               overflowShelf: Shelf = Shelf.ofType(ShelfType.OVERFLOW),
+                               events: GlobalEvents): ShelfSet
         {
-            val hot = Shelf.ofType(ShelfType.HOT)
-            val cold = Shelf.ofType(ShelfType.COLD)
-            val frozen = Shelf.ofType(ShelfType.FROZEN)
-            val overflow = Shelf.ofType(ShelfType.OVERFLOW)
-
             return ShelfSetImpl(events = events,
-                                hot = hot,
-                                cold = cold,
-                                frozen = frozen,
-                                overflow = overflow)
+                                hot = hotShelf,
+                                cold = coldShelf,
+                                frozen = frozenShelf,
+                                overflow = overflowShelf)
         }
     }
 
