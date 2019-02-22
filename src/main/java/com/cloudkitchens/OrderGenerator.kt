@@ -18,7 +18,10 @@ package com.cloudkitchens
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.generator.StringGenerators
@@ -70,9 +73,10 @@ internal class GeneratorFromResource: OrderGenerator
     private val LOG = getLogger()
 
     private var gson = GsonBuilder()
-            .setPrettyPrinting()
-            .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
-            .create()
+                            .setPrettyPrinting()
+                            .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+                            .registerTypeAdapter(Temperature::class.java, TemperatureAdapter)
+                            .create()
 
     private val orders = parseOrders()
 
@@ -96,5 +100,26 @@ internal class GeneratorFromResource: OrderGenerator
             LOG.error("Failed to parse json from file", ex)
             return emptyList()
         }
+    }
+
+}
+
+//===========================================
+// GSON ADAPTERS
+//===========================================
+object TemperatureAdapter: TypeAdapter<Temperature>()
+{
+
+    override fun write(out: JsonWriter?, value: Temperature?)
+    {
+        val string = value?.toString()?.toLowerCase() ?: return
+        out?.value(string)
+    }
+
+    override fun read(`in`: JsonReader?): Temperature?
+    {
+        val string = `in`?.nextString() ?: return null
+        val temp = Temperature.fromString(string)
+        return temp
     }
 }
