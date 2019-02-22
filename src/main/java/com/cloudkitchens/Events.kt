@@ -21,6 +21,8 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.SingletonPattern
 import tech.sirwellington.alchemy.kotlin.extensions.asWeak
 import tech.sirwellington.alchemy.kotlin.extensions.removeWhere
 import java.lang.ref.WeakReference
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 /**
  * Listens for events across the system.
@@ -43,6 +45,7 @@ interface EventListener
 object GlobalEvents: EventListener
 {
 
+    private var eventThread: Executor = Executors.newSingleThreadExecutor()
     private val listeners: MutableList<WeakReference<EventListener>> = mutableListOf()
 
     fun subscribe(listener: EventListener)
@@ -58,33 +61,51 @@ object GlobalEvents: EventListener
 
     override fun onOrderReceived(request: OrderRequest)
     {
-        listeners.forEach{ it.get()?.onOrderReceived(request) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderReceived(request)  }
+        }
     }
 
     override fun onOrderPrepared(order: Order)
     {
-        listeners.forEach{ it.get()?.onOrderPrepared(order) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderPrepared(order) }
+        }
+
     }
 
     override fun onOrderDiscarded(order: Order)
     {
-        listeners.forEach { it.get()?.onOrderDiscarded(order) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderDiscarded(order) }
+        }
     }
 
     override fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf)
     {
-        listeners.forEach { it.get()?.onOrderAddedToShelf(order, shelfSet, shelf) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderAddedToShelf(order, shelfSet, shelf) }
+        }
     }
 
     override fun onOrderPickedUp(order: Order, driver: Driver)
     {
-        listeners.forEach{ it.get()?.onOrderPickedUp(order, driver) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderPickedUp(order, driver) }
+        }
     }
 
     override fun onOrderDelivered(order: Order, driver: Driver)
     {
-        listeners.forEach{ it.get()?.onOrderDelivered(order, driver) }
+        listeners.forEach()
+        {
+            eventThread.execute { it.get()?.onOrderDelivered(order, driver) }
+        }
     }
 
 }
-
