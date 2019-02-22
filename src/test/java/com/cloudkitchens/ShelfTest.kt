@@ -26,10 +26,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import tech.sirwellington.alchemy.test.hamcrest.isNull
-import tech.sirwellington.alchemy.test.hamcrest.notEmpty
-import tech.sirwellington.alchemy.test.hamcrest.notNull
-import tech.sirwellington.alchemy.test.hamcrest.notNullOrEmpty
+import tech.sirwellington.alchemy.kotlin.extensions.createListOf
+import tech.sirwellington.alchemy.test.hamcrest.*
 import tech.sirwellington.alchemy.test.junit.runners.*
 
 @RunWith(AlchemyTestRunner::class)
@@ -103,6 +101,17 @@ class ShelfTest
 
         val result = shelf.pickupOrder(orderId)
         assertThat(result, equalTo(order))
+    }
+
+    @Test
+    fun testAddOrderBeyondCapacity()
+    {
+        val n = shelf.capacity + 1
+        val orders = createListOf(n) { Generators.order() }
+        orders.forEach(shelf::addOrder)
+
+        assertThat(shelf.size, equalTo(shelf.capacity))
+        assertThat(shelf.items, hasSize(shelf.capacity))
     }
 
     @Test
@@ -202,6 +211,31 @@ class ShelfTest
         val capacity = shelf.capacity
         val expected = if (type == OVERFLOW) 20 else 15
         assertThat(capacity, equalTo(expected))
+    }
+
+    @Test
+    fun testNumberOfItemsWhenNone()
+    {
+        val result = shelf.numberOfItems(Temperature.any)
+        assertThat(result, equalTo(0))
+    }
+
+    @Test
+    fun testNumberOfItemsWhenOne()
+    {
+        shelf.addOrder(order)
+        val result = shelf.numberOfItems(order.temperature)
+        assertThat(result, equalTo(1))
+    }
+
+    @Test
+    fun testNumberOfItemsWhenMultiple()
+    {
+        orders.forEach(shelf::addOrder)
+        val temp = Temperature.any
+        val expected = orders.count { it.temperature == temp }
+        val result = shelf.numberOfItems(temp)
+        assertThat(result, equalTo(expected))
     }
 
 }

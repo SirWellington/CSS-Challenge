@@ -54,6 +54,11 @@ interface Shelf
     fun removeAnItem(type: Temperature): Order?
     fun removeWasteItems()
 
+    fun numberOfItems(temperature: Temperature): Int
+    {
+        return items.count { it.temperature == temperature }
+    }
+
     fun displayOn(display: Display)
     {
         display.displayOrders(this.items)
@@ -95,6 +100,12 @@ internal class ShelfImpl(override val type: ShelfType,
 
     override fun addOrder(order: Order)
     {
+        if (isAtCapacity)
+        {
+            LOG.warn("Shelf is full! Cannot add new order [${order.id}]")
+            return
+        }
+
         orders[order.id] = order
         order.registerPlacementIn(this)
     }
@@ -187,13 +198,7 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     private fun _addOrder(order: Order, shouldRetry: Boolean = true)
     {
-        val shelf = when (order.request.temp)
-        {
-            COLD   -> cold
-            HOT    -> hot
-            FROZEN -> frozen
-            else   -> return
-        }
+        val shelf = shelfFor(order.temperature)
 
         when
         {
@@ -229,8 +234,33 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
     override fun pickupOrder(orderId: String): Order?
     {
         val results = shelves.mapNotNull { it.pickupOrder(orderId) }
-        val order = results.firstOrNull()
+        val order = results.firstOrNull() ?: return null
+        rearrangeOrdersAtTemperature(order.temperature)
+
         return order
+    }
+
+    private fun rearrangeOrdersAtTemperature(temperature: Temperature)
+    {
+        val shelf = shelfFor(temperature)
+
+        while (overflow.numberOfItems(temperature) > 0 && shelf.notFull)
+        {
+            val nextItem = overflow.removeAnItem(temperature) ?: return
+            LOG.warn("Moving order [${nextItem.id}] from overflow back to [$temperature] shelf.")
+            shelf.addOrder(nextItem)
+        }
+    }
+
+    private fun shelfFor(temperature: Temperature): Shelf
+    {
+        return when (temperature)
+        {
+            COLD   -> cold
+            HOT    -> hot
+            FROZEN -> frozen
+        }
+
     }
 
     private fun dispose(order: Order)
