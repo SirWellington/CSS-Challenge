@@ -29,7 +29,7 @@ class MainTest
     @Test
     fun testParseOrders()
     {
-        Main.main(emptyArray())
+
     }
 
 }

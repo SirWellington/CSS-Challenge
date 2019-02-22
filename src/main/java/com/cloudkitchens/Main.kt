@@ -16,10 +16,6 @@
 
 package com.cloudkitchens
 
-import com.google.gson.FieldNamingPolicy
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-
 
 /**
  *
@@ -32,7 +28,10 @@ object Main
     @JvmStatic
     fun main(args: Array<String>)
     {
+        val system = OrderingSystem()
 
+        LOG.info("Beginning system…")
+        system.begin()
     }
 
 
