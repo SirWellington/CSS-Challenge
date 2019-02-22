@@ -49,8 +49,8 @@ object GlobalEvents: EventListener
 
     private val LOG = getLogger()
 
-    private var eventThread: Executor = Executors.newSingleThreadExecutor()
     private val listeners: MutableList<WeakReference<EventListener>> = mutableListOf()
+    var eventThread: Executor = Executors.newSingleThreadExecutor()
 
     fun subscribe(listener: EventListener)
     {
