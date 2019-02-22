@@ -279,7 +279,7 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     private fun discard(order: Order)
     {
-        LOG.error("Discarding order [${order.id}]. No space available to put it on.")
+        LOG.error("Discarding order [${order.id}] of temp [${order.temperature}]. No space available to put it on.")
         events.onOrderDiscarded(order)
     }
 
