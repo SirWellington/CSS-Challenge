@@ -131,7 +131,7 @@ internal class ShelfImpl(override val type: ShelfType,
         val removedIds = wastedItems.map { it.key }
         removedIds.forEach { orders.remove(it) }
 
-        LOG.warn("Removed [${wastedItems.size}] items from shelf as they are now waste: [$removedIds]")
+        LOG.warn("Removed [${wastedItems.size}] items from [$type] shelf as they are now waste: [$removedIds]")
     }
 
 }
@@ -189,11 +189,16 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
                             override val overflow: Shelf): ShelfSet
 {
     private val LOG = getLogger()
+    private val lock = Object()
 
     override fun addOrder(order: Order)
     {
         LOG.info("Adding order [${order.id}] to shelf set]")
-        _addOrder(order)
+
+        synchronized(lock)
+        {
+            _addOrder(order)
+        }
     }
 
     private fun _addOrder(order: Order, shouldRetry: Boolean = true)
@@ -225,7 +230,7 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
                 }
                 else
                 {
-                    dispose(order)
+                    discard(order)
                 }
             }
         }
@@ -233,11 +238,13 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     override fun pickupOrder(orderId: String): Order?
     {
-        val results = shelves.mapNotNull { it.pickupOrder(orderId) }
-        val order = results.firstOrNull() ?: return null
-        rearrangeOrdersAtTemperature(order.temperature)
-
-        return order
+        synchronized(lock)
+        {
+            val results = shelves.mapNotNull { it.pickupOrder(orderId) }
+            val order = results.firstOrNull() ?: return null
+            rearrangeOrdersAtTemperature(order.temperature)
+            return order
+        }
     }
 
     private fun rearrangeOrdersAtTemperature(temperature: Temperature)
@@ -247,8 +254,16 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
         while (overflow.numberOfItems(temperature) > 0 && shelf.notFull)
         {
             val nextItem = overflow.removeAnItem(temperature) ?: return
-            LOG.warn("Moving order [${nextItem.id}] from overflow back to [$temperature] shelf.")
-            shelf.addOrder(nextItem)
+            if (nextItem.isWaste)
+            {
+                LOG.info("Clearing overflow of waste item [${nextItem.id}]")
+                discard(nextItem)
+            }
+            else
+            {
+                LOG.warn("Moving order [${nextItem.id}] from overflow back to [$temperature] shelf at value [${nextItem.normalizedValue}].")
+                shelf.addOrder(nextItem)
+            }
         }
     }
 
@@ -260,12 +275,11 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
             HOT    -> hot
             FROZEN -> frozen
         }
-
     }
 
-    private fun dispose(order: Order)
+    private fun discard(order: Order)
     {
-        LOG.error("Disposed of order [${order.id}]")
+        LOG.error("Discarding order [${order.id}]. No space available to put it on.")
         events.onOrderDiscarded(order)
     }
 

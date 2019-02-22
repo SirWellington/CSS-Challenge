@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit
  */
 class OrderingSystem
 {
-    private val LOG = getLogger()
 
+    private val LOG = getLogger()
 
     private var scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(4)
     private var orderGenerator: OrderGenerator = OrderGenerator.fromResourceFile
@@ -40,7 +40,7 @@ class OrderingSystem
     private var events: GlobalEvents = GlobalEvents
     private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events = events)
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
-    private var deliveryTimeRange = 2..10
+    private var deliveryTimeRange = 5..30
 
     private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange,
                                                             scheduler = scheduler)
