@@ -38,6 +38,8 @@ interface EventListener
 }
 
 /**
+ * This is the [Singleton][SingletonPattern] instance where
+ * all events flow through the system.
  *
  * @author SirWellington
  */

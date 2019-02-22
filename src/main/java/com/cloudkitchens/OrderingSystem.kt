@@ -47,7 +47,7 @@ class OrderingSystem
 
     fun begin()
     {
-        dispatcher.registerIn(events)
+        dispatcher.startListening(events)
 
         val generateOrders = Runnable { generateNewOrders() }
         scheduler.scheduleAtFixedRate(generateOrders, 0, 1, TimeUnit.SECONDS)

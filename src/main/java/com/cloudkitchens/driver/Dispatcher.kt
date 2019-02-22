@@ -32,7 +32,7 @@ class Dispatcher(private val scheduler: ScheduledExecutorService,
     private val LOG = getLogger()
     private lateinit var events: GlobalEvents
 
-    fun registerIn(events: GlobalEvents)
+    fun startListening(events: GlobalEvents)
     {
         this.events = events
         events.subscribe(this)
