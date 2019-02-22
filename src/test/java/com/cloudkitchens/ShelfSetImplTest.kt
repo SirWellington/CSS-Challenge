@@ -102,6 +102,8 @@ class ShelfSetImplTest
         instance.addOrder(order)
         verify(expectedShelf, never()).addOrder(any())
         verify(overflowShelf, never()).addOrder(any())
+
+        verify(events).onOrderDiscarded(order)
     }
 
     @Test
