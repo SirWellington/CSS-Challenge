@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit.SECONDS
  * Responsible for picking up orders and making deliveries.
  * @author SirWellington
  */
-class Driver(private val driverId: String,
+class Driver(val driverId: String,
              private val events: GlobalEvents,
              private val scheduler: ScheduledExecutorService,
              private val trafficDelayRange: IntRange)
@@ -37,8 +37,9 @@ class Driver(private val driverId: String,
     fun respondToOrder(orderId: String, shelfSet: ShelfSet)
     {
         val trafficDelay = trafficDelayRange.random().toLong()
-        val command = Runnable { this.pickupOrder(orderId, shelfSet)}
+        val command = Runnable { this.pickupOrder(orderId, shelfSet) }
         scheduler.schedule(command, trafficDelay, SECONDS)
+        LOG.info("[$driverId] on their way to pickup order [$orderId]")
     }
 
     internal fun pickupOrder(orderId: String, shelfSet: ShelfSet)

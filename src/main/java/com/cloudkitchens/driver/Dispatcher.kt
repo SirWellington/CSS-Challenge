@@ -30,10 +30,17 @@ class Dispatcher(private val events: GlobalEvents,
                  private val trafficDelayRange: IntRange): EventListener
 {
 
+    private val LOG = getLogger()
+
+    init
+    {
+        events.subscribe(this)
+    }
 
     private fun driverForOrder(order: Order): Driver
     {
         val name = PeopleGenerators.names().get()
+
         return Driver(driverId = name,
                       events = events,
                       scheduler = scheduler,
@@ -43,6 +50,7 @@ class Dispatcher(private val events: GlobalEvents,
     override fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf)
     {
         val driver = driverForOrder(order)
+        LOG.info("Dispatching driver [${driver.driverId}] to pickup order [${order.id}]")
         driver.respondToOrder(order.id, shelfSet)
     }
 
