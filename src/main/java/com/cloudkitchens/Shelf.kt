@@ -128,10 +128,7 @@ internal class ShelfImpl(override val type: ShelfType,
         val wastedItems = orders.filter { it.value.isWaste }
         if (wastedItems.isEmpty()) return
 
-        val removedIds = wastedItems.map { it.key }
-        removedIds.forEach { orders.remove(it) }
-
-        LOG.warn("Removed [${wastedItems.size}] items from [$type] shelf as they are now waste: [$removedIds]")
+        LOG.warn("Removed [${wastedItems.size}] waste items from [$type] shelf: [${wastedItems.map { it.key to it.value.normalizedValue }}]")
     }
 
 }
@@ -221,12 +218,11 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
             else             ->
             {
-                LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
-                removeWaste()
-
                 if (shouldRetry)
                 {
                     _addOrder(order, shouldRetry = false)
+                    LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
+                    removeWaste()
                 }
                 else
                 {
