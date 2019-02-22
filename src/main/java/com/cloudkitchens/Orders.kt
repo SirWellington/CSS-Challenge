@@ -17,7 +17,10 @@
 package com.cloudkitchens
 
 import tech.sirwellington.alchemy.kotlin.extensions.anyElement
+import tech.sirwellington.alchemy.kotlin.extensions.asWeak
 import tech.sirwellington.alchemy.kotlin.extensions.tryOrNull
+import java.lang.ref.WeakReference
+import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -52,8 +55,10 @@ data class OrderRequest(val name: String,
  */
 data class Order(val request: OrderRequest,
                  val id: String,
-                 val timeOfOrder: ZonedDateTime = ZonedDateTime.now())
+                 val timeOfOrder: ZonedDateTime = ZonedDateTime.now(),
+                 private val placementHistory: MutableList<Pair<Instant, WeakReference<Shelf>>> = mutableListOf())
 {
+
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
 
@@ -67,28 +72,47 @@ data class Order(val request: OrderRequest,
     }
 
     /**
-     * Returns how the age of the order, in seconds.
+     * Registers placement of this order on a shelf.
+     * This is used to calculate the proper [value] for the order.
+     * This [Order] keeps a [WeakReference] to the [shelf], so it is not
+     * necessary to clean up.
      */
-    val orderAge: Long
-        get()
-        {
-            val now = ZonedDateTime.now()
-            return timeOfOrder.until(now, ChronoUnit.SECONDS).absoluteValue
-        }
+    fun registerPlacementIn(shelf: Shelf)
+    {
+        val ref = shelf.asWeak()
+        val time = Instant.now()
+        placementHistory.add(Pair(time, ref))
+    }
 
-    /** Determines the value of the current order.*/
-    val value: Double
+    val value: Int
         get()
         {
-            //value = ([shelf life] - [order age]) - ([decay rate] * [order age])
-            return (shelfLife - orderAge) - (decayRate * orderAge)
+//            val value = (currentValue - orderAge) - (decayRate * orderAge)
+
+            // Start with the shelf life
+            var value = shelfLife
+
+            // Remove value with each placement
+            for (i in 0 until placementHistory.size)
+            {
+                val shelf = placementHistory[i].second.get() ?: continue
+                val start = placementHistory[i].first
+                val end = placementHistory.getOrNull(i + 1)?.first ?: continue
+                val age = start.until(end, ChronoUnit.SECONDS).absoluteValue
+                val decayRate = decayRateIn(shelf)
+                val adjustment = (value - age) - (decayRate * age)
+                value -= adjustment.toInt()
+            }
+
+            return value
         }
 
     val normalizedValue: Double
-        get() = value / shelfLife.toDouble()
+        get() = value.toDouble() / shelfLife.toDouble()
 
     /** Determines whether this order is now waste and should be removed. */
-    val isWaste get() = value <= 0.0
+    val isWaste get() = value <= 0
+
 }
 
 

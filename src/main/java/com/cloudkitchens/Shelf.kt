@@ -27,7 +27,8 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPatt
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
-import java.util.concurrent.LinkedBlockingDeque
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Where orders are placed once they are ready for delivery.
@@ -52,7 +53,6 @@ interface Shelf
     fun display(): List<OrderDetail>
     fun pickupOrder(orderId: String): Order?
     fun removeWasteItems()
-    fun removeItemWithTemperature(temperature: Temperature): Order?
 
     companion object Factory
     {
@@ -85,33 +85,33 @@ internal class ShelfImpl(override val type: ShelfType,
                          override val capacity: Int = 15): Shelf
 {
 
-    private val orders = LinkedBlockingDeque<Order>()
+    private val orders = ConcurrentHashMap<String, Order>()
+    private val timestamps = ConcurrentHashMap<String, Instant>()
+    private val LOG = getLogger()
 
     override val items: List<Order>
-        get() =  orders.toList()
-
-    override val size: Int
-        get() = orders.size
+        get() =  orders.values.toList()
 
     override fun addOrder(order: Order)
     {
-        orders.add(order)
+        orders[order.id] = order
+        timestamps[order.id] = Instant.now()
+        order.registerPlacementIn(this)
     }
 
     override fun pickupOrder(orderId: String): Order?
     {
-        val order = orders.firstOrNull { it.id == orderId } ?: return null
-        orders.remove(order)
+        val order = orders.remove(orderId) ?: return null
 
-        return order
+        return if (order.isWaste) null else order
     }
 
     override fun display(): List<OrderDetail>
     {
         val details = orders.map()
         {
-            OrderDetail(order = it,
-                        normalizedValue = it.normalizedValue)
+            OrderDetail(order = it.value,
+                        normalizedValue = it.value.normalizedValue)
         }
 
         return details
@@ -119,15 +119,13 @@ internal class ShelfImpl(override val type: ShelfType,
 
     override fun removeWasteItems()
     {
-        orders.removeIf { it.isWaste }
+        val wastedItems = orders.filter { it.value.isWaste }
+        val removedIds = wastedItems.map { it.key }
+        removedIds.forEach { orders.remove(it) }
+
+        LOG.warn("Removed [${wastedItems.size}] items from shelf as they are now waste: [$removedIds]")
     }
 
-    override fun removeItemWithTemperature(temperature: Temperature): Order?
-    {
-        val first = orders.firstOrNull { it.request.temp == temperature } ?: return null
-        orders.remove(first)
-        return first
-    }
 }
 
 //===========================================
@@ -237,7 +235,7 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     private fun dispose(order: Order)
     {
-        LOG.info("Disposed of order [${order.id}]")
+        LOG.error("Disposed of order [${order.id}]")
         events.onOrderDiscarded(order)
     }
 
