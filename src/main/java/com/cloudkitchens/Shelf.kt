@@ -51,6 +51,7 @@ interface Shelf
 
     fun addOrder(order: Order)
     fun pickupOrder(orderId: String): Order?
+    fun removeAnItem(type: Temperature): Order?
     fun removeWasteItems()
 
     fun displayOn(display: Display)
@@ -103,6 +104,12 @@ internal class ShelfImpl(override val type: ShelfType,
         val order = orders.remove(orderId) ?: return null
 
         return if (order.isWaste) null else order
+    }
+
+    override fun removeAnItem(type: Temperature): Order?
+    {
+        val order = orders.values.firstOrNull { it.request.temp == type }
+        return order?.id?.let { orders.remove(it) }
     }
 
     override fun removeWasteItems()

@@ -18,11 +18,8 @@ package com.cloudkitchens
 
 import com.cloudkitchens.Generators.OrderAlchemyGenerator
 import com.cloudkitchens.ShelfType.OVERFLOW
-import com.natpryce.hamkrest.and
+import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.hasElement
-import com.natpryce.hamkrest.isEmpty
 import com.nhaarman.mockito_kotlin.check
 import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
@@ -31,6 +28,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import tech.sirwellington.alchemy.test.hamcrest.isNull
 import tech.sirwellington.alchemy.test.hamcrest.notEmpty
+import tech.sirwellington.alchemy.test.hamcrest.notNull
 import tech.sirwellington.alchemy.test.hamcrest.notNullOrEmpty
 import tech.sirwellington.alchemy.test.junit.runners.*
 
@@ -149,6 +147,41 @@ class ShelfTest
             assertThat(size, equalTo(this.orders.size))
             orders.forEach { assertThat(this.orders, hasElement(it)) }
         })
+    }
+
+    @Test
+    fun testRemoveItemOfTypeWhenNone()
+    {
+        val result = shelf.removeAnItem(order.request.temp)
+        assertThat(result, isNull)
+    }
+
+    @Test
+    fun testRemoveItemOfTypeWhenOne()
+    {
+        shelf.addOrder(order)
+        val result = shelf.removeAnItem(order.request.temp)
+        assertThat(result, equalTo(order))
+    }
+
+    @Test
+    fun testRemoveItemOfTypeWhenMultiple()
+    {
+        orders.forEach(shelf::addOrder)
+        val temperature = Temperature.any
+        val validOrders = orders.filter { it.temperature == temperature }
+        val result = shelf.removeAnItem(temperature)
+
+        if (validOrders.isEmpty())
+        {
+            assertThat(result, isNull)
+        }
+        else
+        {
+            assertThat(result, notNull)
+            assertThat(result!!, isIn(validOrders))
+            assertThat(shelf.pickupOrder(result.id), isNull)
+        }
     }
 
     @Test

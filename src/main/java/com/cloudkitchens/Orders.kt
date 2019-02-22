@@ -62,6 +62,7 @@ data class Order(val request: OrderRequest,
     private val LOG = getLogger()
     private val placementHistory: MutableList<Pair<Instant, WeakReference<Shelf>>> = mutableListOf()
 
+    val temperature get() = request.temp
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
 
