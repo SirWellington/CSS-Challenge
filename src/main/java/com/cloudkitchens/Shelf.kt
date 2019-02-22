@@ -49,9 +49,13 @@ interface Shelf
     val notFull get() = !isAtCapacity
 
     fun addOrder(order: Order)
-    fun display(): List<OrderDetail>
     fun pickupOrder(orderId: String): Order?
     fun removeWasteItems()
+
+    fun displayOn(display: Display)
+    {
+        display.displayOrders(this.items)
+    }
 
     companion object Factory
     {
@@ -72,9 +76,6 @@ enum class ShelfType
     FROZEN,
     OVERFLOW
 }
-
-data class OrderDetail(val order: Order,
-                       val normalizedValue: Double)
 
 //===========================================
 // IMPLEMENTATION
@@ -101,17 +102,6 @@ internal class ShelfImpl(override val type: ShelfType,
         val order = orders.remove(orderId) ?: return null
 
         return if (order.isWaste) null else order
-    }
-
-    override fun display(): List<OrderDetail>
-    {
-        val details = orders.map()
-        {
-            OrderDetail(order = it.value,
-                        normalizedValue = it.value.normalizedValue)
-        }
-
-        return details
     }
 
     override fun removeWasteItems()
@@ -231,7 +221,7 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     override fun pickupOrder(orderId: String): Order?
     {
-        val results = shelves.map { it.pickupOrder(orderId) }.filterNotNull()
+        val results = shelves.mapNotNull { it.pickupOrder(orderId) }
         val order = results.firstOrNull()
         return order
     }
