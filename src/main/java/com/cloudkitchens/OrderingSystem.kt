@@ -17,6 +17,7 @@
 package com.cloudkitchens
 
 import com.cloudkitchens.driver.Dispatcher
+import com.cloudkitchens.driver.InfiniteDispatcher
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -41,8 +42,8 @@ class OrderingSystem
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
     private var deliveryTimeRange = 2..10
 
-    private var dispatcher = Dispatcher(trafficDelayRange = deliveryTimeRange,
-                                        scheduler = scheduler)
+    private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange,
+                                                            scheduler = scheduler)
 
 
     fun begin()

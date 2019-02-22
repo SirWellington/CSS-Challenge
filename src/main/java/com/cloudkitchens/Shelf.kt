@@ -27,7 +27,6 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPatt
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
-import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -86,7 +85,6 @@ internal class ShelfImpl(override val type: ShelfType,
 {
 
     private val orders = ConcurrentHashMap<String, Order>()
-    private val timestamps = ConcurrentHashMap<String, Instant>()
     private val LOG = getLogger()
 
     override val items: List<Order>
@@ -95,7 +93,6 @@ internal class ShelfImpl(override val type: ShelfType,
     override fun addOrder(order: Order)
     {
         orders[order.id] = order
-        timestamps[order.id] = Instant.now()
         order.registerPlacementIn(this)
     }
 
@@ -120,6 +117,8 @@ internal class ShelfImpl(override val type: ShelfType,
     override fun removeWasteItems()
     {
         val wastedItems = orders.filter { it.value.isWaste }
+        if (wastedItems.isEmpty()) return
+
         val removedIds = wastedItems.map { it.key }
         removedIds.forEach { orders.remove(it) }
 
@@ -185,18 +184,18 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     override fun addOrder(order: Order)
     {
-        LOG.info("Adding order [${order.id}] to shelf set")
-
+        LOG.info("Adding order [${order.id}] to shelf set]")
         _addOrder(order)
     }
 
-    private fun _addOrder(order: Order, didOverflow: Boolean = false)
+    private fun _addOrder(order: Order, shouldRetry: Boolean = true)
     {
         val shelf = when (order.request.temp)
         {
             COLD   -> cold
             HOT    -> hot
             FROZEN -> frozen
+            else   -> return
         }
 
         when
@@ -206,19 +205,21 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
                 shelf.addOrder(order)
                 events.onOrderAddedToShelf(order, this, shelf)
             }
+
             overflow.notFull ->
             {
                 overflow.addOrder(order)
                 events.onOrderAddedToShelf(order, this, overflow)
             }
+
             else             ->
             {
                 LOG.warn("Both the [${shelf.type}] and the Overflow shelves are full! Clearing inventory.")
                 removeWaste()
 
-                if (!didOverflow)
+                if (shouldRetry)
                 {
-                    _addOrder(order, didOverflow = true)
+                    _addOrder(order, shouldRetry = false)
                 }
                 else
                 {
@@ -230,7 +231,9 @@ internal class ShelfSetImpl(private val events: GlobalEvents,
 
     override fun pickupOrder(orderId: String): Order?
     {
-        return shelves.map { it.pickupOrder(orderId) }.firstOrNull()
+        val results = shelves.map { it.pickupOrder(orderId) }.filterNotNull()
+        val order = results.firstOrNull()
+        return order
     }
 
     private fun dispose(order: Order)

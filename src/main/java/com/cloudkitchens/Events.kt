@@ -47,6 +47,8 @@ interface EventListener
 object GlobalEvents: EventListener
 {
 
+    private val LOG = getLogger()
+
     private var eventThread: Executor = Executors.newSingleThreadExecutor()
     private val listeners: MutableList<WeakReference<EventListener>> = mutableListOf()
 
@@ -80,6 +82,7 @@ object GlobalEvents: EventListener
 
     override fun onOrderDiscarded(order: Order)
     {
+        LOG.warn("Order discarded => [${order.id}]")
         listeners.forEach()
         {
             eventThread.execute { it.get()?.onOrderDiscarded(order) }
@@ -96,6 +99,8 @@ object GlobalEvents: EventListener
 
     override fun onOrderPickedUp(order: Order, driver: Driver)
     {
+        LOG.info("Order picked up [${order.id}] by [${driver.name}] at value [${order.value}] or [${order.normalizedValue}]")
+
         listeners.forEach()
         {
             eventThread.execute { it.get()?.onOrderPickedUp(order, driver) }
@@ -104,6 +109,8 @@ object GlobalEvents: EventListener
 
     override fun onOrderDelivered(order: Order, driver: Driver)
     {
+        LOG.info("Order [${order.id}] delivered by [${driver.name}]")
+
         listeners.forEach()
         {
             eventThread.execute { it.get()?.onOrderDelivered(order, driver) }

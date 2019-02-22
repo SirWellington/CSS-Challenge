@@ -24,6 +24,7 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 
 //===========================================
@@ -55,9 +56,11 @@ data class OrderRequest(val name: String,
  */
 data class Order(val request: OrderRequest,
                  val id: String,
-                 val timeOfOrder: ZonedDateTime = ZonedDateTime.now(),
-                 private val placementHistory: MutableList<Pair<Instant, WeakReference<Shelf>>> = mutableListOf())
+                 val timeOfOrder: ZonedDateTime = ZonedDateTime.now())
 {
+
+    private val LOG = getLogger()
+    private val placementHistory: MutableList<Pair<Instant, WeakReference<Shelf>>> = mutableListOf()
 
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
@@ -87,7 +90,7 @@ data class Order(val request: OrderRequest,
     val value: Int
         get()
         {
-//            val value = (currentValue - orderAge) - (decayRate * orderAge)
+//            val value = (shelfLife - orderAge) - (decayRate * orderAge)
 
             // Start with the shelf life
             var value = shelfLife
@@ -97,11 +100,17 @@ data class Order(val request: OrderRequest,
             {
                 val shelf = placementHistory[i].second.get() ?: continue
                 val start = placementHistory[i].first
-                val end = placementHistory.getOrNull(i + 1)?.first ?: continue
+                val end = placementHistory.getOrNull(i + 1)?.first ?: Instant.now()
                 val age = start.until(end, ChronoUnit.SECONDS).absoluteValue
                 val decayRate = decayRateIn(shelf)
-                val adjustment = (value - age) - (decayRate * age)
-                value -= adjustment.toInt()
+                val calculatedValue = (shelfLife - age) - (decayRate * age)
+                val adjustment = (shelfLife - calculatedValue).absoluteValue.roundToInt()
+                value -= adjustment
+            }
+
+            if (value <= 0)
+            {
+                LOG.warn("Order now has no value [$value]")
             }
 
             return value

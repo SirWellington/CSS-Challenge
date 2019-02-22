@@ -16,7 +16,7 @@
 
 package com.cloudkitchens.driver
 
-import com.cloudkitchens.GlobalEvents
+import com.cloudkitchens.EventListener
 import com.cloudkitchens.ShelfSet
 import com.cloudkitchens.getLogger
 import java.util.concurrent.ScheduledExecutorService
@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit.SECONDS
  * Responsible for picking up orders and making deliveries.
  * @author SirWellington
  */
-class Driver(val driverId: String,
-             private val events: GlobalEvents,
+class Driver(val name: String,
              private val scheduler: ScheduledExecutorService,
-             private val trafficDelayRange: IntRange)
+             private val trafficDelayRange: IntRange,
+             private val listener: EventListener)
 {
 
     private val LOG = getLogger()
@@ -39,7 +39,7 @@ class Driver(val driverId: String,
         val trafficDelay = trafficDelayRange.random().toLong()
         val command = Runnable { this.pickupOrder(orderId, shelfSet) }
         scheduler.schedule(command, trafficDelay, SECONDS)
-        LOG.info("[$driverId] on their way to pickup order [$orderId]")
+        LOG.info("[$name] on their way to pickup order [$orderId]")
     }
 
     internal fun pickupOrder(orderId: String, shelfSet: ShelfSet)
@@ -48,13 +48,12 @@ class Driver(val driverId: String,
 
         if (order == null)
         {
-            LOG.warn("Driver [$driverId] could not find order [$orderId] on the shelves.")
+            LOG.warn("Driver [$name] could not find order [$orderId] on the shelves.")
         }
         else
         {
-            LOG.info("Driver [$driverId] successfully picked up orderId [$orderId]")
-            events.onOrderPickedUp(order, this)
-            events.onOrderDelivered(order, this)
+            listener.onOrderPickedUp(order, this)
+            listener.onOrderDelivered(order, this)
         }
     }
 

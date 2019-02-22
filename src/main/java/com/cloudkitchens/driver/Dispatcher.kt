@@ -17,6 +17,9 @@
 package com.cloudkitchens.driver
 
 import com.cloudkitchens.*
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
+import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
 import tech.sirwellington.alchemy.generator.PeopleGenerators
 import java.util.concurrent.ScheduledExecutorService
 
@@ -25,33 +28,58 @@ import java.util.concurrent.ScheduledExecutorService
  *
  * @author SirWellington
  */
-class Dispatcher(private val scheduler: ScheduledExecutorService,
-                 private val trafficDelayRange: IntRange): EventListener
+@StrategyPattern(role = INTERFACE)
+interface Dispatcher: EventListener
+{
+    fun startListening(events: GlobalEvents)
+
+    fun disconnect(events: GlobalEvents)
+}
+
+//===========================================
+// INFINITE DISPATCHER
+//===========================================
+
+/**
+ * This Dispatchers creates a driver-per-order. In real life, there is a limited amount of drivers
+ * available to fulfill orders at any given time.
+ *
+ * @author SirWellington
+ */
+@StrategyPattern(role = CONCRETE_BEHAVIOR)
+class InfiniteDispatcher(private val scheduler: ScheduledExecutorService,
+                         private val trafficDelayRange: IntRange): Dispatcher
 {
 
     private val LOG = getLogger()
-    private lateinit var events: GlobalEvents
+    private var events: GlobalEvents? = null
 
-    fun startListening(events: GlobalEvents)
+    override fun startListening(events: GlobalEvents)
     {
-        this.events = events
         events.subscribe(this)
+        this.events = events
+    }
+
+    override fun disconnect(events: GlobalEvents)
+    {
+        events.unsubscribe(this)
+        this.events = null
     }
 
     private fun driverForOrder(order: Order): Driver
     {
         val name = PeopleGenerators.names().get()
 
-        return Driver(driverId = name,
-                      events = events,
+        return Driver(name = name,
                       scheduler = scheduler,
-                      trafficDelayRange = trafficDelayRange)
+                      trafficDelayRange = trafficDelayRange,
+                      listener = events ?: this)
     }
 
     override fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf)
     {
         val driver = driverForOrder(order)
-        LOG.info("Dispatching driver [${driver.driverId}] to pickup order [${order.id}]")
+        LOG.info("Dispatching driver [${driver.name}] to pickup order [${order.id}]")
         driver.respondToOrder(order.id, shelfSet)
     }
 
