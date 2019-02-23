@@ -6,29 +6,7 @@
 This is the Cloud Kitchens submission challenge. It was completed using Kotlin,
 and will run fine on any recent JVM.
 
-### Technologies Used
-1. Kotlin
-2. Maven
-3. JDK
-4. Alchemy Libraries
-
-
-### Top Challenges
-
-+ The calculation of an order's value over time proved really tricky, 
-  because it depends on how long an order sits in its proper shelf 
-  vs the overflow shelf.
-  
-+ Overall this was a really challenging problem. 
-  There are many complexities to this system that one would just not expect.
-
-+ Synchronizing the shelves across multiple threads.
-  Between the Kitchen adding orders and Drivers who come to pick
-  them up, there were many opportunities for race conditions.
-
-
 ---------------------------------------------------------------------------------------------------------
-
 
 ## Getting Started
 
@@ -43,9 +21,48 @@ mvn clean install
 mvn exec:java
 ```
 
+## Technologies Used
+1. Kotlin
+2. Maven
+3. JDK
+4. Alchemy Libraries
+
+---------------------------------------------------------------------------------------------------------
+## Challenges
+
+### Top Challenges
+
++ The calculation of an order's value over time proved really tricky, 
+  because it depends on how long an order sits in its designated shelf 
+  vs the overflow shelf.
+  
++ Synchronizing the shelves across multiple threads.
+  Between the Kitchen adding orders, Drivers coming to pick
+  up orders, and the kitchen reorganizing the shelves, 
+  there were many opportunities for race conditions.
+  
++ Overall this was a really challenging problem. 
+  There are many complexities to this system that one would just not expect.
+  
+  
+### Handling Overflow Items
+Handling overflow items is handled by the `ShelfSet` object,
+which is an abstraction that I wrote over the four main shelves. 
+The kitchen adds orders to it, and the drivers pick up orders from it.
+
+Doing it this way allows me to handle item overflow in an encapsulated manner, 
+without troubling other parts of the system. 
+
+The `ShelfSet` moves orders to the overflow shelf if the current shelf is full
+and there is nowhere else to go. And whenever an order is picked-up by a driver,
+it checks to see if there are any items in the overflow that can take its place.
+
+This made the `ShelfSet` the only point of contention across multiple threads.
+In order for this to work, the `ShelfSet` had to be made Thread-Safe. 
+
 ---------------------------------------------------------------------------------------------------------
 
-### Areas for improvement 
+## Areas for improvement 
 
 The result code is far from perfect. Here are some areas I have 
 identified for improvement.
@@ -60,7 +77,7 @@ we could have a nice UI to show the system status.
 nice if this thing had a REST API that allowed you to place
 orders and get the current system status.
 
-
++ **Unit Test Coverage**: Right now coverage stands at **79%**, which isn't bad, but could be better.
 
 ---------------------------------------------------------------------------------------------------------
 
@@ -71,6 +88,7 @@ orders and get the current system status.
 4. Google Music 🎧
 
 ### Hardware Used
-1. iMac Mid-2011
+1. iMac Mid-2011 🖥
 2. Apple Chiclet keyboard
 3. Apple Magic Mouse
+4. Some vegan ice-cream 🍨
