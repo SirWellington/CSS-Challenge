@@ -70,6 +70,14 @@ identified for improvement.
 + **Dependency Injection**: Dependencies between different parts of the system could have been better handled by the use
 of a DI framework such as Guice or Spring.
 
++ **Real-World Dispatcher**: I followed the guide, and so the Dispatcher dispatches a driver per request.
+In the real world it won't be this simple. Sometimes you only have a small pool of
+drivers doing deliveries. In fact there are a lot of complexities on the 
+delivery side that were just glossed over for the purpose of this examination. 
+One can imagine for instance, not just traffic, but the distance the driver
+must go to deliver an order. There is also a decay that happens when 
+an order sits with a delivery person.
+
 + **Display**: For the purposes of time, I used a primary text-based display, but with more time 
 we could have a nice UI to show the system status.
 
@@ -78,6 +86,7 @@ nice if this thing had a REST API that allowed you to place
 orders and get the current system status.
 
 + **Unit Test Coverage**: Right now coverage stands at **79%**, which isn't bad, but could be better.
+
 
 ---------------------------------------------------------------------------------------------------------
 
