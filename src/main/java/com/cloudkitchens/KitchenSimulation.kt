@@ -18,6 +18,7 @@ package com.cloudkitchens
 
 import com.cloudkitchens.driver.Dispatcher
 import com.cloudkitchens.driver.InfiniteDispatcher
+import com.google.gson.GsonBuilder
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
 import java.io.File
 import java.util.concurrent.Executors
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit
  *
  * @author SirWellington
  */
-class OrderingSimulation
+class KitchenSimulation
 {
 
     private val LOG = getLogger()
@@ -42,11 +43,9 @@ class OrderingSimulation
     private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events = events)
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
     private var deliveryTimeRange = 5..30
-
-    private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange,
-                                                            scheduler = scheduler)
-
+    private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange, scheduler = scheduler)
     private var display: Display = Display.Logger
+    private var gson = GsonBuilder().setPrettyPrinting().create()
 
 
     fun begin()
@@ -77,7 +76,7 @@ class OrderingSimulation
         LOG.info("Added [$newOrderCount] new orders to the kitchen")
     }
 
-    fun withDisplay(display: Display): OrderingSimulation
+    fun withDisplay(display: Display): KitchenSimulation
     {
         this.display.stopListeningOn(events)
         this.display = display
@@ -86,21 +85,29 @@ class OrderingSimulation
         return this
     }
 
-    fun withDisplayToFile(file: File): OrderingSimulation
+    fun withDisplayToFile(file: File): KitchenSimulation
     {
-        val display = FileAppendDisplay(file)
+        val display = FileAppendDisplay(file, gson)
         return withDisplay(display)
     }
 
-    fun withPoissonGenerator(poissonGenerator: PoissonGenerator): OrderingSimulation
+    fun withPoissonGenerator(poissonGenerator: PoissonGenerator): KitchenSimulation
     {
         this.poissonGenerator = poissonGenerator
         return this
     }
 
-    fun withLamda(λ: Double): OrderingSimulation
+    fun withPoissonLambda(λ: Double): KitchenSimulation
     {
-        this.λ = minOf(λ, 1.0)
+        this.λ = maxOf(λ, 1.0)
+        return this
+    }
+
+    fun withTrafficDelayRange(range: IntRange): KitchenSimulation
+    {
+        this.deliveryTimeRange = range
+        this.dispatcher.trafficDelayRange = range
+
         return this
     }
 

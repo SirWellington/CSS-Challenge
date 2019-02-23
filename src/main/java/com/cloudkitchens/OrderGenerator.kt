@@ -33,7 +33,7 @@ import tech.sirwellington.alchemy.kotlin.extensions.random
 // ORDER GENERATOR
 //===========================================
 /**
- * Responsible for generating a new Order for use with the [OrderingSimulation].
+ * Responsible for generating a new Order for use with the [KitchenSimulation].
  * @author SirWellington
  */
 interface OrderGenerator

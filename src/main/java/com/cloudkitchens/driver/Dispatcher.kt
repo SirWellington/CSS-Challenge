@@ -31,6 +31,12 @@ import java.util.concurrent.ScheduledExecutorService
 @StrategyPattern(role = INTERFACE)
 interface Dispatcher: EventListener
 {
+
+    /**
+     * Defines the possible values for traffic delays, in seconds.
+     */
+    var trafficDelayRange: IntRange
+
     fun startListening(events: GlobalEvents)
 
     fun disconnect(events: GlobalEvents)
@@ -48,7 +54,7 @@ interface Dispatcher: EventListener
  */
 @StrategyPattern(role = CONCRETE_BEHAVIOR)
 class InfiniteDispatcher(private val scheduler: ScheduledExecutorService,
-                         private val trafficDelayRange: IntRange): Dispatcher
+                         override var trafficDelayRange: IntRange): Dispatcher
 {
 
     private val LOG = getLogger()

@@ -33,9 +33,10 @@ object Main
     @JvmStatic
     fun main(args: Array<String>)
     {
-        val system = OrderingSimulation()
+        val system = KitchenSimulation()
                         .withDisplayToFile(DISPLAY_FILE)
-                        .withLamda(3.25)
+                        .withPoissonLambda(3.25)
+                        .withTrafficDelayRange(2..10)
 
         LOG.info("Beginning Kitchen Simulation…")
         system.begin()
