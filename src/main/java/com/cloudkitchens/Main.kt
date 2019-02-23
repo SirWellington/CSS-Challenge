@@ -16,6 +16,8 @@
 
 package com.cloudkitchens
 
+import java.io.File
+
 
 /**
  *
@@ -25,14 +27,18 @@ object Main
 {
     private val LOG = getLogger()
 
+    private const val DISPLAY_FILE_PATH = "output.json"
+    private val DISPLAY_FILE = File(DISPLAY_FILE_PATH)
+
     @JvmStatic
     fun main(args: Array<String>)
     {
-        val system = OrderingSystem()
+        val system = OrderingSimulation()
+                        .withDisplayToFile(DISPLAY_FILE)
+                        .withLamda(3.25)
 
-        LOG.info("Beginning system…")
+        LOG.info("Beginning Kitchen Simulation…")
         system.begin()
     }
-
 
 }

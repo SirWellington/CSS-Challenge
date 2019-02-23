@@ -19,6 +19,7 @@ package com.cloudkitchens
 import com.cloudkitchens.driver.Dispatcher
 import com.cloudkitchens.driver.InfiniteDispatcher
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
+import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit
  *
  * @author SirWellington
  */
-class OrderingSystem
+class OrderingSimulation
 {
 
     private val LOG = getLogger()
@@ -74,6 +75,33 @@ class OrderingSystem
         LOG.info("Generating [$newOrderCount] new orders…")
         newOrders.forEach { kitchen.receiveOrder(it) }
         LOG.info("Added [$newOrderCount] new orders to the kitchen")
+    }
+
+    fun withDisplay(display: Display): OrderingSimulation
+    {
+        this.display.stopListeningOn(events)
+        this.display = display
+        display.beginListeningOn(events)
+
+        return this
+    }
+
+    fun withDisplayToFile(file: File): OrderingSimulation
+    {
+        val display = FileAppendDisplay(file)
+        return withDisplay(display)
+    }
+
+    fun withPoissonGenerator(poissonGenerator: PoissonGenerator): OrderingSimulation
+    {
+        this.poissonGenerator = poissonGenerator
+        return this
+    }
+
+    fun withLamda(λ: Double): OrderingSimulation
+    {
+        this.λ = minOf(λ, 1.0)
+        return this
     }
 
 }
