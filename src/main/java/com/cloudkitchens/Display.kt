@@ -37,12 +37,12 @@ interface Display: EventListener
 
     }
 
-    fun beginListeningOn(events: GlobalEvents)
+    fun connect(events: GlobalEvents)
     {
         events.subscribe(this)
     }
 
-    fun stopListeningOn(events: GlobalEvents)
+    fun disconnect(events: GlobalEvents)
     {
         events.unsubscribe(this)
     }

@@ -21,6 +21,7 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.CONCRETE_BEHAVIOR
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE
 import tech.sirwellington.alchemy.generator.PeopleGenerators
+import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 /**
@@ -37,13 +38,21 @@ interface Dispatcher: EventListener
      */
     var trafficDelayRange: IntRange
 
-    fun startListening(events: GlobalEvents)
+    fun connect(events: GlobalEvents)
 
     fun disconnect(events: GlobalEvents)
+
+    companion object
+    {
+
+        val UNLIMITED = UnlimitedDispatcher(scheduler = Executors.newScheduledThreadPool(2),
+                                            trafficDelayRange = 2..10)
+
+    }
 }
 
 //===========================================
-// INFINITE DISPATCHER
+// UNLIMITED DISPATCHER
 //===========================================
 
 /**
@@ -53,14 +62,14 @@ interface Dispatcher: EventListener
  * @author SirWellington
  */
 @StrategyPattern(role = CONCRETE_BEHAVIOR)
-class InfiniteDispatcher(private val scheduler: ScheduledExecutorService,
-                         override var trafficDelayRange: IntRange): Dispatcher
+class UnlimitedDispatcher(private val scheduler: ScheduledExecutorService,
+                          override var trafficDelayRange: IntRange): Dispatcher
 {
 
     private val LOG = getLogger()
     private var events: GlobalEvents? = null
 
-    override fun startListening(events: GlobalEvents)
+    override fun connect(events: GlobalEvents)
     {
         events.subscribe(this)
         this.events = events

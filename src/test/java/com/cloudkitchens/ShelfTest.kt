@@ -16,7 +16,6 @@
 
 package com.cloudkitchens
 
-import com.cloudkitchens.Generators.OrderAlchemyGenerator
 import com.cloudkitchens.ShelfType.OVERFLOW
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
@@ -24,8 +23,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
+import tech.sirwellington.alchemy.kotlin.extensions.random
 import tech.sirwellington.alchemy.test.hamcrest.*
-import tech.sirwellington.alchemy.test.junit.runners.*
+import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner
+import tech.sirwellington.alchemy.test.junit.runners.GenerateCustom
+import tech.sirwellington.alchemy.test.junit.runners.GenerateEnum
+import tech.sirwellington.alchemy.test.junit.runners.Repeat
 
 @RunWith(AlchemyTestRunner::class)
 @Repeat
@@ -42,13 +45,16 @@ class ShelfTest
     private lateinit var order: Order
     private val orderId get() = order.id
 
-    @GenerateList(value = Order::class,size = 25, customGenerator = OrderAlchemyGenerator::class)
     private lateinit var orders: List<Order>
 
     @Before
     fun setup()
     {
         shelf = Shelf.ofType(type)
+        orders = createListOf(Int.random(1, shelf.capacity))
+        {
+            Generators.order()
+        }
     }
 
     @Test

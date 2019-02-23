@@ -17,7 +17,7 @@
 package com.cloudkitchens
 
 import com.cloudkitchens.driver.Dispatcher
-import com.cloudkitchens.driver.InfiniteDispatcher
+import com.cloudkitchens.driver.UnlimitedDispatcher
 import com.google.gson.GsonBuilder
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
 import java.io.File
@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit
 
 
 /**
+ * Runs the simulation of a kitchen with the given parameters.
  *
  * @author SirWellington
  */
@@ -43,24 +44,26 @@ class KitchenSimulation
     private var shelfSet: ShelfSet = ShelfSet.newDefaultShelfSet(events = events)
     private var kitchen: Kitchen = Kitchen.newCaliforniaKitchen(events = events, shelfSet = shelfSet)
     private var deliveryTimeRange = 5..30
-    private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange, scheduler = scheduler)
+    private var dispatcher: Dispatcher = UnlimitedDispatcher(trafficDelayRange = deliveryTimeRange, scheduler = scheduler)
     private var display: Display = Display.Logger
     private var gson = GsonBuilder().setPrettyPrinting().create()
 
 
     fun begin()
     {
-        dispatcher.startListening(events)
+        dispatcher.connect(events)
 
         val generateOrders = Runnable { generateNewOrders() }
         scheduler.scheduleAtFixedRate(generateOrders, 0, 1, TimeUnit.SECONDS)
 
-        display.beginListeningOn(events)
+        display.connect(events)
     }
 
     fun stop()
     {
         scheduler.shutdownNow()
+        dispatcher.disconnect(events)
+        display.disconnect(events)
     }
 
     private fun generateNewOrders()
@@ -78,9 +81,9 @@ class KitchenSimulation
 
     fun withDisplay(display: Display): KitchenSimulation
     {
-        this.display.stopListeningOn(events)
+        this.display.disconnect(events)
         this.display = display
-        display.beginListeningOn(events)
+        display.connect(events)
 
         return this
     }

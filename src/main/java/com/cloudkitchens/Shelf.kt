@@ -21,6 +21,7 @@ import com.cloudkitchens.ShelfType.OVERFLOW
 import com.cloudkitchens.Temperature.COLD
 import com.cloudkitchens.Temperature.FROZEN
 import com.cloudkitchens.Temperature.HOT
+import tech.sirwellington.alchemy.annotations.concurrency.ThreadSafe
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.FACTORY_METHOD
 import tech.sirwellington.alchemy.annotations.designs.patterns.FactoryMethodPattern.Role.PRODUCT
@@ -131,6 +132,12 @@ internal class ShelfImpl(override val type: ShelfType,
 //===========================================
 // SHELF SET
 //===========================================
+/**
+ * A [ShelfSet] is an abstraction over the group of [Shelves][Shelf] that are
+ * used in a [Kitchen].
+ *
+ * @author SirWellington
+ */
 @FactoryMethodPattern(role = PRODUCT)
 interface ShelfSet
 {
@@ -174,6 +181,7 @@ interface ShelfSet
 //===========================================
 // SHELF SET IMPL
 //===========================================
+@ThreadSafe
 internal class ShelfSetImpl(private val events: GlobalEvents,
                             override val hot: Shelf,
                             override val cold: Shelf,
