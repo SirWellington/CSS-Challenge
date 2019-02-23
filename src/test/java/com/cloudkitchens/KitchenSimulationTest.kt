@@ -57,6 +57,8 @@ class KitchenSimulationTest
     fun testBegin()
     {
         instance.begin()
+
+        Thread.sleep(100)
     }
 
     @Test
