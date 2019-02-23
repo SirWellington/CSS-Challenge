@@ -59,11 +59,6 @@ interface Shelf
         return items.count { it.temperature == temperature }
     }
 
-    fun displayOn(display: Display)
-    {
-        display.displayOrders(this.items)
-    }
-
     companion object Factory
     {
 
@@ -155,6 +150,13 @@ interface ShelfSet
     {
         shelves.forEach { it.removeWasteItems() }
     }
+
+    fun displayOn(display: Display)
+    {
+        val orders = shelves.flatMap { it.items }
+        display.displayOrders(orders)
+    }
+
 
     companion object Factory
     {

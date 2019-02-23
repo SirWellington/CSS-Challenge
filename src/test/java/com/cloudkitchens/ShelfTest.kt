@@ -20,12 +20,9 @@ import com.cloudkitchens.Generators.OrderAlchemyGenerator
 import com.cloudkitchens.ShelfType.OVERFLOW
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import com.nhaarman.mockito_kotlin.check
-import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
 import tech.sirwellington.alchemy.kotlin.extensions.createListOf
 import tech.sirwellington.alchemy.test.hamcrest.*
 import tech.sirwellington.alchemy.test.junit.runners.*
@@ -37,8 +34,6 @@ class ShelfTest
 
     private lateinit var shelf: Shelf
 
-    @Mock
-    private lateinit var display: Display
 
     @GenerateEnum
     private lateinit var type: ShelfType
@@ -127,35 +122,6 @@ class ShelfTest
         shelf.addOrder(order)
         val result = shelf.pickupOrder(orderId)
         assertThat(result, equalTo(order))
-    }
-
-    @Test
-    fun testDisplayWhenEmpty()
-    {
-        shelf.displayOn(display)
-        verify(display).displayOrders(emptyList())
-    }
-
-    @Test
-    fun testDisplayWhenOne()
-    {
-        shelf.addOrder(order)
-        shelf.displayOn(display)
-        verify(display).displayOrders(listOf(order))
-    }
-
-    @Test
-    fun testDisplayWhenMultiple()
-    {
-        orders.forEach(shelf::addOrder)
-
-        shelf.displayOn(display)
-
-        verify(display).displayOrders(check { orders ->
-            val size = orders.size
-            assertThat(size, equalTo(this.orders.size))
-            orders.forEach { assertThat(this.orders, hasElement(it)) }
-        })
     }
 
     @Test

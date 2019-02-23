@@ -18,10 +18,8 @@ package com.cloudkitchens
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.natpryce.hamkrest.hasElement
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,10 +48,15 @@ class ShelfSetImplTest
     private lateinit var overflowShelf: Shelf
 
     @Mock
+    private lateinit var display: Display
+
+    @Mock
     private lateinit var events: GlobalEvents
 
     @GenerateCustom(Generators.OrderAlchemyGenerator::class)
     private lateinit var order: Order
+
+    private lateinit var orders: List<Order>
 
     @Before
     fun setup()
@@ -164,6 +167,45 @@ class ShelfSetImplTest
         assertThat(instance.overflow, equalTo(overflowShelf))
     }
 
+    @Test
+    fun testDisplayWhenEmpty()
+    {
+        instance.displayOn(display)
+        verify(display).displayOrders(emptyList())
+    }
+
+    @Test
+    fun testDisplayWhenOne()
+    {
+        val shelf = instance.shelves.random()
+        whenever(shelf.items).then { listOf(order) }
+
+        instance.addOrder(order)
+        instance.displayOn(display)
+        verify(display).displayOrders(listOf(order))
+    }
+
+    @Test
+    fun testDisplayWhenMultiple()
+    {
+        orders = createListOf(Int.random(10, 40)) { Generators.order() }
+        orders.forEach(instance::addOrder)
+
+        orders.groupBy { shelfForOrder(it) }
+              .onEach()
+              { (shelf, orders) ->
+                  whenever(shelf.items).then { orders }
+              }
+
+        instance.displayOn(display)
+
+        verify(display).displayOrders(check { orders ->
+            val size = orders.size
+            assertThat(size, equalTo(this.orders.size))
+            orders.forEach { assertThat(this.orders, hasElement(it)) }
+        })
+    }
+
     private fun shelfForOrder(order: Order): Shelf
     {
         return when (order.request.temp)
@@ -173,4 +215,5 @@ class ShelfSetImplTest
             Temperature.FROZEN -> frozenShelf
         }
     }
+
 }
