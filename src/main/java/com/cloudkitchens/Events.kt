@@ -33,7 +33,7 @@ interface EventListener
     fun onOrderPrepared(order: Order) { }
     fun onOrderAddedToShelf(order: Order, shelfSet: ShelfSet, shelf: Shelf) { }
     fun onOrderDiscarded(order: Order) { }
-    fun onOrderPickedUp(order: Order, driver: Driver) { }
+    fun onOrderPickedUp(order: Order, shelfSet: ShelfSet, driver: Driver) { }
     fun onOrderDelivered(order: Order, driver: Driver) { }
 }
 
@@ -97,13 +97,13 @@ object GlobalEvents: EventListener
         }
     }
 
-    override fun onOrderPickedUp(order: Order, driver: Driver)
+    override fun onOrderPickedUp(order: Order, shelfSet: ShelfSet, driver: Driver)
     {
         LOG.info("Order picked up [${order.id}] by [${driver.name}] at value [${order.value}] or [${order.normalizedValue}]")
 
         listeners.forEach()
         {
-            eventThread.execute { it.get()?.onOrderPickedUp(order, driver) }
+            eventThread.execute { it.get()?.onOrderPickedUp(order, shelfSet, driver) }
         }
     }
 

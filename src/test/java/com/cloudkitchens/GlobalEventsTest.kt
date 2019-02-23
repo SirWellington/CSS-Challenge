@@ -102,8 +102,8 @@ class GlobalEventsTest
     @Test
     fun testOnOrderPickedUp()
     {
-        instance.onOrderPickedUp(order, driver)
-        verify(listener).onOrderPickedUp(order, driver)
+        instance.onOrderPickedUp(order, shelfSet, driver)
+        verify(listener).onOrderPickedUp(order, shelfSet, driver)
     }
 
     @Test

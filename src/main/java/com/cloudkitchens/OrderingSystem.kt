@@ -45,6 +45,8 @@ class OrderingSystem
     private var dispatcher: Dispatcher = InfiniteDispatcher(trafficDelayRange = deliveryTimeRange,
                                                             scheduler = scheduler)
 
+    private var display: Display = Display.Logger
+
 
     fun begin()
     {
@@ -52,6 +54,8 @@ class OrderingSystem
 
         val generateOrders = Runnable { generateNewOrders() }
         scheduler.scheduleAtFixedRate(generateOrders, 0, 1, TimeUnit.SECONDS)
+
+        display.beginListeningOn(events)
     }
 
     fun stop()
@@ -68,7 +72,7 @@ class OrderingSystem
         }
 
         LOG.info("Generating [$newOrderCount] new orders…")
-        val orders = newOrders.forEach { kitchen.receiveOrder(it) }
+        newOrders.forEach { kitchen.receiveOrder(it) }
         LOG.info("Added [$newOrderCount] new orders to the kitchen")
     }
 

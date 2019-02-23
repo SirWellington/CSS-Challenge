@@ -151,13 +151,6 @@ interface ShelfSet
         shelves.forEach { it.removeWasteItems() }
     }
 
-    fun displayOn(display: Display)
-    {
-        val orders = shelves.flatMap { it.items }
-        display.displayOrders(orders)
-    }
-
-
     companion object Factory
     {
 

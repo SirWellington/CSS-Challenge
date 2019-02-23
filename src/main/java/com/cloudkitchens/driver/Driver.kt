@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 
 /**
  * Responsible for picking up orders and making deliveries.
+ *
  * @author SirWellington
  */
 class Driver(val name: String,
@@ -52,7 +53,7 @@ class Driver(val name: String,
         }
         else
         {
-            listener.onOrderPickedUp(order, this)
+            listener.onOrderPickedUp(order, shelfSet, this)
             listener.onOrderDelivered(order, this)
         }
     }
