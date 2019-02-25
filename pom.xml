@@ -153,16 +153,6 @@
 
 
             <!--=======================-->
-            <!--AROMA-->
-            <!--=======================-->
-            <dependency>
-                <groupId>tech.aroma</groupId>
-                <artifactId>aroma-java-client</artifactId>
-                <version>2.4</version>
-            </dependency>
-
-
-            <!--=======================-->
             <!--KOTLIN-->
             <!--=======================-->
             <dependency>
@@ -211,119 +201,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>27.0.1-jre</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--GSON-->
-            <!--=======================-->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.8.5</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--GUICE-->
-            <!--=======================-->
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>4.2.2</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--DECORATOR LIBRARY-->
-            <!--=======================-->
-            <dependency>
-                <groupId>tech.sirwellington.decorice</groupId>
-                <artifactId>decorice</artifactId>
-                <version>1.0</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--THRIFT-->
-            <!--=======================-->
-            <dependency>
-                <groupId>org.apache.thrift</groupId>
-                <artifactId>libthrift</artifactId>
-                <version>0.12.0</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--JASYPT (Encryption)-->
-            <!--=======================-->
-            <dependency>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-                <version>1.9.2</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--SQL-->
-            <!--=======================-->
-
-            <!--POSTGRESQL-->
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.2.5</version>
-            </dependency>
-
-            <!--POSTGIS-->
-            <dependency>
-                <groupId>net.postgis</groupId>
-                <artifactId>postgis-jdbc</artifactId>
-                <version>2.3.0</version>
-            </dependency>
-
-            <!--SPRING JDBC TEMPLATES-->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>5.1.4.RELEASE</version>
-            </dependency>
-
-            <!--HIKARI CONNECTION POOL-->
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>3.3.1</version>
-            </dependency>
-
-            <!--JDBI-->
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-core</artifactId>
-                <version>${jdbi.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-kotlin</artifactId>
-                <version>${jdbi.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgres</artifactId>
-                <version>${jdbi.version}</version>
-            </dependency>
-
-
-
-            <!--=======================-->
-            <!--COMMAND LINE OPTIONS-->
-            <!--=======================-->
-            <dependency>
-                <groupId>net.sf.jopt-simple</groupId>
-                <artifactId>jopt-simple</artifactId>
-                <version>5.0.4</version>
             </dependency>
 
 
@@ -380,38 +257,6 @@
                         <groupId>org.jetbrains.kotlin</groupId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--SPARK FRAMEWORK-->
-            <!--=======================-->
-            <dependency>
-                <groupId>com.sparkjava</groupId>
-                <artifactId>spark-core</artifactId>
-                <version>2.8.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sparkjava</groupId>
-                <artifactId>spark-kotlin</artifactId>
-                <version>1.0.0-alpha</version>
-            </dependency>
-
-
-            <!--=======================-->
-            <!--DROP WIZARD-->
-            <!--=======================-->
-            <dependency>
-                <groupId>io.dropwizard</groupId>
-                <artifactId>dropwizard-core</artifactId>
-                <version>${dropwizard.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>4.0.5</version>
             </dependency>
 
         </dependencies>
@@ -609,23 +454,6 @@
             </plugin>
 
 
-            <!--SUREFIRE MAVEN TEST PLUGIN-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-                <configuration>
-                    <argLine>${argLine} -Xmx2G</argLine>
-                    <includes>
-                        <include>**/*Test.java</include>
-                        <include>**/*Tests.java</include>
-                        <include>**/*Test.kt</include>
-                        <include>**/*Tests.kt</include>
-                    </includes>
-
-                </configuration>
-            </plugin>
-
             <!--MAVEN EXEC-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -642,53 +470,4 @@
 
     </build>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-
-            <build>
-                <plugins>
-
-                    <!--CODE SIGNING-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <configuration>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!--INTEGRATION TESTING ON RELEASE-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.22.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-            </build>
-
-        </profile>
-    </profiles>
 </project>
