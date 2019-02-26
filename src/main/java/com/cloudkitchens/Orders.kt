@@ -17,9 +17,7 @@
 package com.cloudkitchens
 
 import tech.sirwellington.alchemy.kotlin.extensions.anyElement
-import tech.sirwellington.alchemy.kotlin.extensions.asWeak
 import tech.sirwellington.alchemy.kotlin.extensions.tryOrNull
-import java.lang.ref.WeakReference
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -61,15 +59,15 @@ data class Order(val request: OrderRequest,
 
     private val LOG = getLogger()
 
-    private val placementHistory: MutableList<Pair<Instant, WeakReference<Shelf>>> = mutableListOf()
+    private val placementHistory: MutableList<Pair<Instant, ShelfType>> = mutableListOf()
 
     val temperature get() = request.temp
     val shelfLife get() = request.shelfLife
     val decayRate get() = request.decayRate
 
-    fun decayRateIn(shelf: Shelf): Double
+    fun decayRateIn(shelfType: ShelfType): Double
     {
-        return when (shelf.type)
+        return when (shelfType)
         {
             ShelfType.OVERFLOW -> decayRate * 2
             else               -> decayRate
@@ -79,14 +77,12 @@ data class Order(val request: OrderRequest,
     /**
      * Registers placement of this order on a shelf.
      * This is used to calculate the proper [value] for the order.
-     * This [Order] keeps a [WeakReference] to the [shelf], so it is not
-     * necessary to clean up.
      */
     fun registerPlacementIn(shelf: Shelf)
     {
-        val ref = shelf.asWeak()
+        val type = shelf.type
         val time = Instant.now()
-        placementHistory.add(Pair(time, ref))
+        placementHistory.add(Pair(time, type))
     }
 
     val value: Int
@@ -100,11 +96,11 @@ data class Order(val request: OrderRequest,
             // Remove value with each placement
             for (i in 0 until placementHistory.size)
             {
-                val shelf = placementHistory[i].second.get() ?: continue
+                val shelfType = placementHistory[i].second
                 val start = placementHistory[i].first
                 val end = placementHistory.getOrNull(i + 1)?.first ?: Instant.now()
                 val age = start.until(end, ChronoUnit.SECONDS).absoluteValue
-                val decayRate = decayRateIn(shelf)
+                val decayRate = decayRateIn(shelfType)
                 val calculatedValue = (shelfLife - age) - (decayRate * age)
                 val adjustment = (shelfLife - calculatedValue).absoluteValue.roundToInt()
                 value -= adjustment
